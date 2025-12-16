@@ -1,7 +1,7 @@
 <?php
 /**
- * Template: Home Page v29.5.1
- * Logo + Mobile Optimized with PTP Images
+ * Template: Home Page v30
+ * Real images and WooCommerce integration
  */
 defined('ABSPATH') || exit;
 
@@ -19,23 +19,89 @@ $featured_trainers = $wpdb->get_results("
 
 $level_labels = array('pro'=>'PRO','college_d1'=>'D1','college_d2'=>'D2','college_d3'=>'D3','academy'=>'ACADEMY','semi_pro'=>'SEMI-PRO');
 
-// Use PTP_Images class
+// Use PTP_Images class for logo
 $logo_url = PTP_Images::logo();
-$img = array(
-    'hero' => PTP_Images::get('BG7A1915'),
-    'training1' => PTP_Images::get('BG7A1874'),
-    'training2' => PTP_Images::get('BG7A1847'),
-    'skill1' => PTP_Images::get('BG7A1288'),
-    'skill2' => PTP_Images::get('BG7A1283'),
-    'drill1' => PTP_Images::get('BG7A1539'),
-    'drill2' => PTP_Images::get('BG7A1520'),
-    'group1' => PTP_Images::get('BG7A1393'),
-    'group2' => PTP_Images::get('BG7A1356'),
-    'action1' => PTP_Images::get('BG7A1797'),
-    'action2' => PTP_Images::get('BG7A1790'),
-    'coach1' => PTP_Images::get('BG7A1595'),
-    'coach2' => PTP_Images::get('BG7A1563'),
+
+// Real PTP summer camp images
+$real_images = array(
+    'hero' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/ptp-soccer-camp-group-pic-july-23.jpg-scaled.jpg',
+    'training1' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/ptp-training-1v1-john.jpg.jpg',
+    'training2' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/ptp-coach-versus-ptp-player-1v1-soccer-training.jpg.jpg',
+    'coaches' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/ptp-coaches.jpg.jpg',
+    'camp1' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/ptp-summer-camp-july-25-group-pic.jpg.jpg',
+    'camp2' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/ptp-summer-camp-winning-team-pic.jpg.jpg',
+    'clinic1' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/ptp-skills-clinic-action-shot.jpg.jpg',
+    'clinic2' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/ptp-skills-soccer-clinic-coach-drew-winning-team-picture.jpg.jpg',
+    'action1' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/ptp-goal-celly-soccer-july-25-summer-camp.jpg.jpg',
+    'action2' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/august-18-soccer-camp-goal-celebration.jpg-scaled.jpg',
+    'signing1' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/ptp-stas-and-mike-signing-campers-gear-july-23.jpg-scaled.jpg',
+    'signing2' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/ptp-coach-sam-signing-ball-soccer-camp.jpg-scaled.jpg',
+    'group1' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/ptp-soccer-camp-group-pic-july-23-2.jpg-scaled.jpg',
+    'waterballoon' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/ptp-water-balloon-fight-action-shot.jpg.jpg',
+    'coaches2' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/ptp-coaches-july-16-group-photo.jpg.jpg',
+    'feedback' => 'https://ptpsummercamps.com/wp-content/uploads/2025/09/ptp-coaches-feedback-with-campers.jpg.jpg',
 );
+
+// Get WooCommerce products for camps and clinics
+$camps = array();
+$clinics = array();
+$min_camp_price = 299;
+$min_clinic_price = 49;
+
+if (class_exists('WooCommerce')) {
+    // Get camp products
+    $camp_products = wc_get_products(array(
+        'limit' => 5,
+        'status' => 'publish',
+        'category' => array('camps', 'summer-camps'),
+        'orderby' => 'date',
+        'order' => 'DESC',
+    ));
+
+    if (!empty($camp_products)) {
+        foreach ($camp_products as $product) {
+            $camps[] = array(
+                'id' => $product->get_id(),
+                'name' => $product->get_name(),
+                'price' => $product->get_price(),
+                'url' => $product->get_permalink(),
+                'image' => wp_get_attachment_url($product->get_image_id()),
+            );
+        }
+        $prices = array_filter(array_column($camps, 'price'));
+        if (!empty($prices)) {
+            $min_camp_price = min($prices);
+        }
+    }
+
+    // Get clinic products
+    $clinic_products = wc_get_products(array(
+        'limit' => 5,
+        'status' => 'publish',
+        'category' => array('clinics', 'skills-clinics'),
+        'orderby' => 'date',
+        'order' => 'DESC',
+    ));
+
+    if (!empty($clinic_products)) {
+        foreach ($clinic_products as $product) {
+            $clinics[] = array(
+                'id' => $product->get_id(),
+                'name' => $product->get_name(),
+                'price' => $product->get_price(),
+                'url' => $product->get_permalink(),
+                'image' => wp_get_attachment_url($product->get_image_id()),
+            );
+        }
+        $prices = array_filter(array_column($clinics, 'price'));
+        if (!empty($prices)) {
+            $min_clinic_price = min($prices);
+        }
+    }
+}
+
+// Get minimum 1-on-1 training rate
+$min_training_rate = $wpdb->get_var("SELECT MIN(hourly_rate) FROM {$wpdb->prefix}ptp_trainers WHERE status = 'active' AND hourly_rate > 0") ?: 50;
 ?>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
@@ -50,7 +116,7 @@ $img = array(
 <div class="ptp-home">
     <!-- HERO -->
     <div class="ptp-hero-p" style="position:relative;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:100px 24px;background:#0E0F11;overflow:hidden">
-        <div style="position:absolute;inset:0;background-image:url('<?php echo esc_url($img['hero']); ?>');background-size:cover;background-position:center;opacity:0.5"></div>
+        <div style="position:absolute;inset:0;background-image:url('<?php echo esc_url($real_images['hero']); ?>');background-size:cover;background-position:center;opacity:0.5"></div>
         <div style="position:absolute;inset:0;background:linear-gradient(to bottom,rgba(14,15,17,0.3),rgba(14,15,17,0.95))"></div>
         
         <div style="position:relative;z-index:2;text-align:center;max-width:800px;width:100%">
@@ -158,8 +224,19 @@ $img = array(
                 <p style="font-size:18px;color:#6B7280;margin:0">Real training sessions with our elite coaches</p>
             </div>
             <div class="ptp-photos" style="display:grid;grid-template-columns:repeat(4,1fr);gap:16px">
-                <?php foreach (array($img['training1'],$img['1v1'],$img['skill1'],$img['coaches'],$img['drill1'],$img['individual'],$img['feedback'],$img['celebration']) as $p): ?>
-                <div style="aspect-ratio:1;border-radius:16px;overflow:hidden"><img src="<?php echo esc_url($p); ?>" alt="PTP" style="width:100%;height:100%;object-fit:cover" loading="lazy"></div>
+                <?php
+                $action_photos = array(
+                    $real_images['training1'],
+                    $real_images['training2'],
+                    $real_images['coaches'],
+                    $real_images['action1'],
+                    $real_images['clinic1'],
+                    $real_images['signing1'],
+                    $real_images['feedback'],
+                    $real_images['action2']
+                );
+                foreach ($action_photos as $p): ?>
+                <div style="aspect-ratio:1;border-radius:16px;overflow:hidden"><img src="<?php echo esc_url($p); ?>" alt="PTP Training" style="width:100%;height:100%;object-fit:cover" loading="lazy"></div>
                 <?php endforeach; ?>
             </div>
         </div>
@@ -190,16 +267,25 @@ $img = array(
             </div>
             <div class="ptp-g3" style="display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
                 <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06)">
-                    <div style="height:160px;background:linear-gradient(135deg,#FCB900,#F59E0B);display:flex;align-items:center;justify-content:center"><div style="text-align:center;color:#0E0F11"><div style="font-size:40px;font-weight:900;line-height:1">SUMMER</div><div style="font-size:18px;font-weight:700">CAMPS 2026</div></div></div>
-                    <div style="padding:24px"><h3 style="font-size:20px;font-weight:700;color:#0E0F11;margin:0 0 8px">Week-Long Camps</h3><p style="font-size:14px;color:#6B7280;margin:0 0 16px;line-height:1.5">Full or half-day options across PA, NJ, DE, MD & NY. Ages 6-14.</p><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14px;color:#6B7280">From <strong style="color:#0E0F11">$299/week</strong></span><a href="<?php echo esc_url(home_url('/ptp-shop-page/')); ?>" style="background:#0E0F11;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none">View Camps</a></div></div>
+                    <div style="height:180px;background:url('<?php echo esc_url($real_images['camp1']); ?>') center/cover;position:relative">
+                        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.7),rgba(0,0,0,0.2))"></div>
+                        <div style="position:absolute;bottom:20px;left:20px;color:#fff"><div style="font-size:32px;font-weight:900;line-height:1">SUMMER</div><div style="font-size:16px;font-weight:700;color:#FCB900">CAMPS 2026</div></div>
+                    </div>
+                    <div style="padding:24px"><h3 style="font-size:20px;font-weight:700;color:#0E0F11;margin:0 0 8px">Week-Long Camps</h3><p style="font-size:14px;color:#6B7280;margin:0 0 16px;line-height:1.5">Full or half-day options across PA, NJ, DE, MD & NY. Ages 6-14.</p><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14px;color:#6B7280">From <strong style="color:#0E0F11">$<?php echo number_format($min_camp_price, 0); ?>/week</strong></span><a href="<?php echo esc_url(home_url('/ptp-shop-page/')); ?>" style="background:#0E0F11;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none">View Camps</a></div></div>
                 </div>
                 <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06)">
-                    <div style="height:160px;background:linear-gradient(135deg,#0E0F11,#1a1a1a);display:flex;align-items:center;justify-content:center"><div style="text-align:center;color:#fff"><div style="font-size:40px;font-weight:900;line-height:1;color:#FCB900">CLINICS</div><div style="font-size:18px;font-weight:700">YEAR-ROUND</div></div></div>
-                    <div style="padding:24px"><h3 style="font-size:20px;font-weight:700;color:#0E0F11;margin:0 0 8px">Skills Clinics</h3><p style="font-size:14px;color:#6B7280;margin:0 0 16px;line-height:1.5">Focused 2-3 hour sessions. Finishing, defending, goalkeeping & more.</p><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14px;color:#6B7280">From <strong style="color:#0E0F11">$49/session</strong></span><a href="<?php echo esc_url(home_url('/ptp-shop-page/')); ?>" style="background:#0E0F11;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none">View Clinics</a></div></div>
+                    <div style="height:180px;background:url('<?php echo esc_url($real_images['clinic1']); ?>') center/cover;position:relative">
+                        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.7),rgba(0,0,0,0.2))"></div>
+                        <div style="position:absolute;bottom:20px;left:20px;color:#fff"><div style="font-size:32px;font-weight:900;line-height:1;color:#FCB900">CLINICS</div><div style="font-size:16px;font-weight:700">YEAR-ROUND</div></div>
+                    </div>
+                    <div style="padding:24px"><h3 style="font-size:20px;font-weight:700;color:#0E0F11;margin:0 0 8px">Skills Clinics</h3><p style="font-size:14px;color:#6B7280;margin:0 0 16px;line-height:1.5">Focused 2-3 hour sessions. Finishing, defending, goalkeeping & more.</p><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14px;color:#6B7280">From <strong style="color:#0E0F11">$<?php echo number_format($min_clinic_price, 0); ?>/session</strong></span><a href="<?php echo esc_url(home_url('/ptp-shop-page/')); ?>" style="background:#0E0F11;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none">View Clinics</a></div></div>
                 </div>
                 <div style="background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.06)">
-                    <div style="height:160px;background:linear-gradient(135deg,#10B981,#059669);display:flex;align-items:center;justify-content:center"><div style="text-align:center;color:#fff"><div style="font-size:40px;font-weight:900;line-height:1">1-ON-1</div><div style="font-size:18px;font-weight:700">TRAINING</div></div></div>
-                    <div style="padding:24px"><h3 style="font-size:20px;font-weight:700;color:#0E0F11;margin:0 0 8px">Private Sessions</h3><p style="font-size:14px;color:#6B7280;margin:0 0 16px;line-height:1.5">Personalized training with elite D1 and pro athletes. Flexible scheduling.</p><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14px;color:#6B7280">From <strong style="color:#0E0F11">$50/hour</strong></span><a href="<?php echo esc_url(home_url('/find-trainers/')); ?>" style="background:#0E0F11;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none">Find Trainers</a></div></div>
+                    <div style="height:180px;background:url('<?php echo esc_url($real_images['training1']); ?>') center/cover;position:relative">
+                        <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.7),rgba(0,0,0,0.2))"></div>
+                        <div style="position:absolute;bottom:20px;left:20px;color:#fff"><div style="font-size:32px;font-weight:900;line-height:1">1-ON-1</div><div style="font-size:16px;font-weight:700;color:#10B981">TRAINING</div></div>
+                    </div>
+                    <div style="padding:24px"><h3 style="font-size:20px;font-weight:700;color:#0E0F11;margin:0 0 8px">Private Sessions</h3><p style="font-size:14px;color:#6B7280;margin:0 0 16px;line-height:1.5">Personalized training with elite D1 and pro athletes. Flexible scheduling.</p><div style="display:flex;align-items:center;justify-content:space-between"><span style="font-size:14px;color:#6B7280">From <strong style="color:#0E0F11">$<?php echo number_format($min_training_rate, 0); ?>/hour</strong></span><a href="<?php echo esc_url(home_url('/find-trainers/')); ?>" style="background:#0E0F11;color:#fff;padding:10px 20px;border-radius:8px;font-size:14px;font-weight:600;text-decoration:none">Find Trainers</a></div></div>
                 </div>
             </div>
         </div>

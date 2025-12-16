@@ -98,7 +98,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ptp_apply'])) {
                     array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%f', '%d', '%s', '%s', '%s')
                 );
 
-                if ($result) {
+                if ($result === false) {
+                    $error = 'There was an error submitting your application. Please try again.';
+                    error_log('PTP Application Error: ' . $wpdb->last_error);
+                } elseif ($result) {
                     $success = true;
                     $app_id = $wpdb->insert_id;
 
@@ -285,38 +288,60 @@ get_header();
 
 /* Tablet & Mobile Responsive */
 @media(max-width:1199px){
-    .apply-main{grid-template-columns:1fr;max-width:700px}
-    .apply-sidebar{position:static;order:2}
-    .apply-form-container{order:1;max-width:none}
+    .apply-main{grid-template-columns:1fr;max-width:600px;margin:0 auto}
+    .apply-sidebar{position:static;order:2;display:none}
+    .apply-form-container{order:1;max-width:none;width:100%}
 }
 @media(max-width:900px){
-    .apply-main{padding:24px 16px 40px;gap:24px}
+    .apply-main{padding:24px 16px 40px;gap:24px;max-width:100%}
 }
 @media(max-width:768px){
-    .apply-hero{padding:36px 20px 44px}
-    .apply-hero h1{font-size:26px}
-    .apply-hero p{font-size:15px}
-    .apply-logo{height:36px;margin-bottom:20px}
-    .apply-badge{padding:8px 16px;font-size:13px;margin-bottom:12px}
-    .apply-form-container{padding:24px 20px;border-radius:16px}
-    .form-header h2{font-size:20px}
-    .form-row{grid-template-columns:1fr}
-    .specialty-grid{grid-template-columns:1fr}
-    .form-input{padding:12px 14px;font-size:16px}
-    .btn{padding:14px 24px;font-size:15px}
-    .rate-value{font-size:36px}
-    .sidebar-card{padding:20px}
-    .testimonial{padding:20px}
-    .apply-success{margin:-20px 16px 40px;padding:32px 24px;border-radius:20px}
-    .apply-success h2{font-size:22px}
-    .success-icon{width:64px;height:64px}
-    .success-icon svg{width:32px;height:32px}
+    .ptp-apply{background:#F9FAFB}
+    .apply-hero{padding:32px 20px 36px;min-height:auto}
+    .apply-hero h1{font-size:24px;line-height:1.2}
+    .apply-hero p{font-size:14px;margin-bottom:0}
+    .apply-logo{height:32px;margin-bottom:16px}
+    .apply-badge{padding:6px 14px;font-size:12px;margin-bottom:10px}
+    .apply-main{padding:20px 16px 40px;gap:20px}
+    .apply-form-container{padding:20px 16px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,0.08)}
+    .form-header{margin-bottom:20px}
+    .form-header h2{font-size:18px}
+    .form-header p{font-size:13px}
+    .step-indicator{margin-bottom:20px}
+    .step-dot{width:10px;height:10px}
+    .form-row{grid-template-columns:1fr;gap:12px}
+    .form-group{margin-bottom:12px}
+    .form-label{font-size:13px;margin-bottom:4px}
+    .form-input{padding:12px 14px;font-size:16px;border-radius:10px}
+    .specialty-grid{grid-template-columns:1fr 1fr;gap:8px}
+    .specialty-item{padding:10px 12px;font-size:13px}
+    .btn{padding:14px 24px;font-size:15px;border-radius:10px}
+    .btn-next,.btn-submit{width:100%}
+    .form-nav{flex-direction:column;gap:10px}
+    .btn-back{order:2;width:100%;background:#F3F4F6;color:#374151}
+    .rate-display{padding:16px}
+    .rate-value{font-size:32px}
+    .rate-input{height:36px}
+    .radius-display{padding:16px}
+    .sidebar-card{padding:16px}
+    .testimonial{padding:16px}
+    .apply-success{margin:20px 16px 40px;padding:28px 20px;border-radius:16px}
+    .apply-success h2{font-size:20px}
+    .success-icon{width:56px;height:56px}
+    .success-icon svg{width:28px;height:28px}
+    .success-timeline{padding:16px}
+    .timeline-item{padding:10px 0}
+    .timeline-num{width:24px;height:24px;font-size:12px}
+    .timeline-text{font-size:13px}
 }
 @media(max-width:380px){
-    .apply-hero h1{font-size:24px}
-    .form-nav{flex-direction:column}
-    .btn-back{order:2;margin-top:8px}
-    .btn-next,.btn-submit{order:1}
+    .apply-hero h1{font-size:22px}
+    .apply-hero p{font-size:13px}
+    .apply-form-container{padding:16px 14px}
+    .form-header h2{font-size:17px}
+    .specialty-grid{grid-template-columns:1fr}
+    .specialty-item{padding:12px}
+    .btn{padding:12px 20px;font-size:14px}
 }
 </style>
 
@@ -404,7 +429,7 @@ get_header();
             </div>
             <?php endif; ?>
             
-            <form method="post" id="applyForm">
+            <form method="post" action="" id="applyForm" novalidate>
                 <?php wp_nonce_field('ptp_apply', 'ptp_apply_nonce'); ?>
                 <input type="hidden" name="ptp_apply" value="1">
                 

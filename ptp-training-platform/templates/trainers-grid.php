@@ -48,9 +48,21 @@ $nonce = wp_create_nonce('ptp_nonce');
 .ptp-f-panel{width:100%;overflow-y:auto;padding:20px;background:#fff}
 .ptp-f-map{display:none;flex:1;min-height:400px;background:#E5E7EB;position:sticky;top:0;height:calc(100vh - 200px)}
 
+/* Mobile Map Toggle */
+.ptp-map-toggle{display:none;position:fixed;bottom:20px;right:20px;z-index:1000;background:#0E0F11;color:#fff;padding:14px 20px;border-radius:40px;font-weight:600;font-size:14px;cursor:pointer;box-shadow:0 4px 20px rgba(0,0,0,0.3);border:none;font-family:inherit;gap:8px;align-items:center}
+.ptp-map-toggle svg{width:18px;height:18px}
+.ptp-map-toggle:hover{background:#1a1a1a;transform:translateY(-2px)}
+
+@media(max-width:1023px){
+    .ptp-map-toggle{display:flex}
+    .ptp-f-layout.map-active .ptp-f-panel{display:none}
+    .ptp-f-layout.map-active .ptp-f-map{display:block;width:100%;height:calc(100vh - 140px);position:fixed;top:140px;left:0;right:0;bottom:0;z-index:50}
+}
+
 @media(min-width:1024px){
     .ptp-f-panel{width:650px;min-width:650px;border-right:1px solid #E5E7EB;height:calc(100vh - 200px)}
     .ptp-f-map{display:block}
+    .ptp-map-toggle{display:none!important}
 }
 @media(min-width:1280px){.ptp-f-panel{width:750px;min-width:750px}}
 
@@ -377,6 +389,14 @@ $nonce = wp_create_nonce('ptp_nonce');
         </div>
 
         <!-- Map Panel -->
+        <!-- Mobile Map Toggle Button -->
+        <?php if (!empty($google_maps_api_key)): ?>
+        <button class="ptp-map-toggle" id="map-toggle" onclick="toggleMapView()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            <span>View Map</span>
+        </button>
+        <?php endif; ?>
+
         <div class="ptp-f-map" id="ptp-map-container">
             <div id="ptp-map" style="width:100%;height:100%"></div>
             <?php if (empty($google_maps_api_key)): ?>
@@ -1043,9 +1063,28 @@ $nonce = wp_create_nonce('ptp_nonce');
             });
         }
     };
+    // Mobile map toggle function
+    window.toggleMapView = function() {
+        var layout = document.querySelector('.ptp-f-layout');
+        var toggle = document.getElementById('map-toggle');
+        if (!layout || !toggle) return;
+
+        var isMapActive = layout.classList.toggle('map-active');
+        toggle.querySelector('span').textContent = isMapActive ? 'View List' : 'View Map';
+
+        // Trigger map resize if switching to map view
+        if (isMapActive && map) {
+            setTimeout(function() {
+                google.maps.event.trigger(map, 'resize');
+                if (state.trainers.length > 0) {
+                    updateMap(state.trainers, state.userLocation);
+                }
+            }, 100);
+        }
+    };
 })();
 </script>
 
 <?php if (!empty($google_maps_api_key)): ?>
-<script async defer src="https://maps.googleapis.com/maps/api/js?key=<?php echo esc_attr($google_maps_api_key); ?>&callback=initMap"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=<?php echo esc_attr($google_maps_api_key); ?>&callback=initMap&libraries=places"></script>
 <?php endif; ?>
