@@ -528,6 +528,345 @@ class PTP_Admin {
             padding: 6px 12px;
             font-size: 13px;
         }
+        .ptp-btn-outline {
+            background: transparent;
+            border: 2px solid #E5E7EB;
+            color: #374151;
+        }
+        .ptp-btn-outline:hover {
+            border-color: #D1D5DB;
+            background: #F9FAFB;
+        }
+
+        /* Filter Tabs */
+        .ptp-filter-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 20px;
+            padding: 4px;
+            background: #F3F4F6;
+            border-radius: 14px;
+            width: fit-content;
+        }
+        .ptp-filter-tab {
+            padding: 10px 20px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #4B5563;
+            text-decoration: none;
+            border-radius: 10px;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ptp-filter-tab:hover {
+            color: #111827;
+            background: rgba(255,255,255,0.5);
+        }
+        .ptp-filter-tab.active {
+            background: #fff;
+            color: #111827;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .ptp-filter-tab .count {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            background: #E5E7EB;
+            color: #6B7280;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .ptp-filter-tab.active .count {
+            background: #FCB900;
+            color: #0A0A0A;
+        }
+
+        /* Toolbar */
+        .ptp-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .ptp-search-box {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .ptp-search-input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .ptp-search-input-wrap .dashicons {
+            position: absolute;
+            left: 12px;
+            color: #9CA3AF;
+            font-size: 18px;
+        }
+        .ptp-search-input {
+            padding: 10px 16px 10px 40px;
+            border: 2px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 14px;
+            min-width: 280px;
+            transition: all 0.2s;
+        }
+        .ptp-search-input:focus {
+            outline: none;
+            border-color: #FCB900;
+            box-shadow: 0 0 0 3px rgba(252,185,0,0.1);
+        }
+        .ptp-btn-secondary {
+            background: #F3F4F6;
+            color: #374151;
+        }
+        .ptp-btn-secondary:hover {
+            background: #E5E7EB;
+        }
+
+        /* Tables */
+        .ptp-table-wrap {
+            overflow-x: auto;
+            border-radius: 14px;
+        }
+        .ptp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        .ptp-table thead th {
+            text-align: left;
+            padding: 14px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #6B7280;
+            background: #F9FAFB;
+            border-bottom: 2px solid #E5E7EB;
+            white-space: nowrap;
+        }
+        .ptp-table thead th:first-child {
+            padding-left: 24px;
+        }
+        .ptp-table thead th:last-child {
+            padding-right: 24px;
+        }
+        .ptp-table tbody td {
+            padding: 16px;
+            border-bottom: 1px solid #F3F4F6;
+            color: #374151;
+            vertical-align: middle;
+        }
+        .ptp-table tbody td:first-child {
+            padding-left: 24px;
+        }
+        .ptp-table tbody td:last-child {
+            padding-right: 24px;
+        }
+        .ptp-table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .ptp-table tbody tr {
+            transition: background 0.15s;
+        }
+        .ptp-table tbody tr:hover {
+            background: #F9FAFB;
+        }
+        .ptp-table-user {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .ptp-table-user-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #FCB900 0%, #C99200 100%);
+            overflow: hidden;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: #0A0A0A;
+            font-size: 16px;
+        }
+        .ptp-table-user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .ptp-table-user-name {
+            font-weight: 600;
+            color: #111827;
+        }
+        .ptp-table-user-email {
+            font-size: 13px;
+            color: #6B7280;
+        }
+
+        /* Status Badges */
+        .ptp-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: capitalize;
+        }
+        .ptp-status-pending {
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        .ptp-status-active, .ptp-status-confirmed, .ptp-status-completed, .ptp-status-approved {
+            background: #D1FAE5;
+            color: #065F46;
+        }
+        .ptp-status-inactive, .ptp-status-cancelled, .ptp-status-rejected {
+            background: #FEE2E2;
+            color: #DC2626;
+        }
+
+        /* Notices */
+        .ptp-notice {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        .ptp-notice-success {
+            background: #D1FAE5;
+            color: #065F46;
+            border: 1px solid #BBF7D0;
+        }
+        .ptp-notice-warning {
+            background: #FEF3C7;
+            color: #92400E;
+            border: 1px solid #FDE68A;
+        }
+        .ptp-notice-error {
+            background: #FEE2E2;
+            color: #DC2626;
+            border: 1px solid #FECACA;
+        }
+        .ptp-notice-info {
+            background: #DBEAFE;
+            color: #1E40AF;
+            border: 1px solid #BFDBFE;
+        }
+
+        /* Actions Dropdown */
+        .ptp-actions-dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        .ptp-actions-dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+            padding: 8px;
+            min-width: 160px;
+            z-index: 100;
+            display: none;
+        }
+        .ptp-actions-dropdown.open .ptp-actions-dropdown-menu {
+            display: block;
+        }
+        .ptp-actions-dropdown-menu a {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px;
+            color: #374151;
+            text-decoration: none;
+            border-radius: 6px;
+            font-size: 13px;
+            transition: all 0.15s;
+        }
+        .ptp-actions-dropdown-menu a:hover {
+            background: #F3F4F6;
+        }
+
+        /* Forms */
+        .ptp-form-row {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 16px;
+            align-items: flex-start;
+        }
+        .ptp-form-row > div {
+            flex: 1;
+        }
+        .ptp-form-row label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 6px;
+            color: #374151;
+        }
+        .ptp-form-row input,
+        .ptp-form-row select,
+        .ptp-form-row textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid #E5E7EB;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        .ptp-form-row input:focus,
+        .ptp-form-row select:focus,
+        .ptp-form-row textarea:focus {
+            outline: none;
+            border-color: #FCB900;
+            box-shadow: 0 0 0 3px rgba(252,185,0,0.1);
+        }
+
+        /* Settings Tabs */
+        .ptp-settings-tabs {
+            display: flex;
+            gap: 0;
+            background: #fff;
+            border-radius: 14px 14px 0 0;
+            border-bottom: 2px solid #E5E7EB;
+            overflow-x: auto;
+        }
+        .ptp-settings-tab {
+            padding: 16px 24px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #6B7280;
+            text-decoration: none;
+            border-bottom: 3px solid transparent;
+            margin-bottom: -2px;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+        .ptp-settings-tab:hover {
+            color: #111827;
+        }
+        .ptp-settings-tab.active {
+            color: #0A0A0A;
+            border-bottom-color: #FCB900;
+        }
+
         @media (max-width: 1200px) {
             .ptp-stats-grid { grid-template-columns: repeat(2, 1fr); }
             .ptp-dashboard-grid { grid-template-columns: 1fr; }
@@ -535,6 +874,9 @@ class PTP_Admin {
         @media (max-width: 782px) {
             .ptp-stats-grid { grid-template-columns: 1fr; }
             .ptp-admin-nav { flex-wrap: wrap; }
+            .ptp-filter-tabs { width: 100%; overflow-x: auto; }
+            .ptp-toolbar { flex-direction: column; align-items: stretch; }
+            .ptp-search-input { min-width: 100%; }
         }
         <?php
     }

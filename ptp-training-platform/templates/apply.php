@@ -1,20 +1,33 @@
 <?php
 /**
- * Template: Apply as Trainer v31
- * Multi-step wizard, mobile-optimized, conversion-focused
- * FIXED: Form submission and validation
+ * Template: Apply as Trainer v32
+ * Multi-step wizard, half-width on desktop, mobile-optimized
+ * FIXED: Form submission, validation, and responsive layout
  */
 defined('ABSPATH') || exit;
 
 $error = '';
 $success = false;
 $submitted_name = '';
+$debug_info = '';
+
+// Ensure database table exists
+global $wpdb;
+$table_name = $wpdb->prefix . 'ptp_applications';
+$table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'") === $table_name;
+
+if (!$table_exists && class_exists('PTP_Database')) {
+    PTP_Database::create_tables();
+    $table_exists = $wpdb->get_var("SHOW TABLES LIKE '$table_name'") === $table_name;
+}
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ptp_apply'])) {
     // Verify nonce
     if (!isset($_POST['ptp_apply_nonce']) || !wp_verify_nonce($_POST['ptp_apply_nonce'], 'ptp_apply')) {
         $error = 'Security verification failed. Please refresh the page and try again.';
+    } elseif (!$table_exists) {
+        $error = 'System configuration error. Please contact support.';
     } else {
         $name = sanitize_text_field($_POST['name'] ?? '');
         $email = sanitize_email($_POST['email'] ?? '');
@@ -39,8 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ptp_apply'])) {
         } elseif (!is_email($email)) {
             $error = 'Please enter a valid email address.';
         } else {
-            global $wpdb;
-
             // Check for existing application
             $exists = $wpdb->get_var($wpdb->prepare(
                 "SELECT id FROM {$wpdb->prefix}ptp_applications WHERE email = %s",
@@ -61,26 +72,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ptp_apply'])) {
                 $location = trim($city . ', ' . $state);
                 $specialties_str = implode(', ', $specialties);
 
+                // Insert application
+                $insert_data = array(
+                    'name' => $name,
+                    'email' => $email,
+                    'phone' => $phone,
+                    'playing_level' => $playing_level,
+                    'college' => $college,
+                    'team' => $team,
+                    'position' => $position,
+                    'location' => $location,
+                    'specialties' => $specialties_str,
+                    'instagram' => ltrim($instagram, '@'),
+                    'bio' => $bio,
+                    'hourly_rate' => $hourly_rate,
+                    'travel_radius' => $travel_radius,
+                    'admin_notes' => 'How heard: ' . $how_heard,
+                    'status' => 'pending',
+                    'created_at' => current_time('mysql')
+                );
+
                 $result = $wpdb->insert(
                     $wpdb->prefix . 'ptp_applications',
-                    array(
-                        'name' => $name,
-                        'email' => $email,
-                        'phone' => $phone,
-                        'playing_level' => $playing_level,
-                        'college' => $college,
-                        'team' => $team,
-                        'position' => $position,
-                        'location' => $location,
-                        'specialties' => $specialties_str,
-                        'instagram' => ltrim($instagram, '@'),
-                        'bio' => $bio,
-                        'hourly_rate' => $hourly_rate,
-                        'travel_radius' => $travel_radius,
-                        'admin_notes' => 'How heard: ' . $how_heard,
-                        'status' => 'pending',
-                        'created_at' => current_time('mysql')
-                    ),
+                    $insert_data,
                     array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%f', '%d', '%s', '%s', '%s')
                 );
 
@@ -187,8 +201,13 @@ get_header();
 .timeline-text{font-size:14px;color:#374151;line-height:1.5}
 .timeline-text strong{color:#111;display:block;margin-bottom:2px}
 
-/* Main Form Area */
-.apply-main{max-width:900px;margin:0 auto;padding:40px 24px 60px;display:grid;grid-template-columns:1fr 320px;gap:32px;align-items:start}
+/* Main Form Area - Half width on large screens */
+.apply-main{max-width:1400px;margin:0 auto;padding:40px 24px 60px;display:grid;grid-template-columns:1fr;gap:32px;align-items:start}
+@media(min-width:1200px){
+    .apply-main{grid-template-columns:1fr 1fr;padding:60px 48px 80px}
+    .apply-form-container{max-width:560px;justify-self:end}
+    .apply-sidebar{max-width:400px;justify-self:start;position:sticky;top:100px}
+}
 
 /* Form Container */
 .apply-form-container{background:#fff;border-radius:20px;padding:36px;box-shadow:0 8px 40px rgba(0,0,0,0.06)}
@@ -264,11 +283,14 @@ get_header();
 .testimonial-name{font-weight:600;color:#111}
 .testimonial-role{color:#6B7280;font-size:13px}
 
-/* Mobile Responsive */
-@media(max-width:900px){
-    .apply-main{grid-template-columns:1fr;padding:24px 16px 40px;gap:24px}
+/* Tablet & Mobile Responsive */
+@media(max-width:1199px){
+    .apply-main{grid-template-columns:1fr;max-width:700px}
     .apply-sidebar{position:static;order:2}
-    .apply-form-container{order:1}
+    .apply-form-container{order:1;max-width:none}
+}
+@media(max-width:900px){
+    .apply-main{padding:24px 16px 40px;gap:24px}
 }
 @media(max-width:768px){
     .apply-hero{padding:36px 20px 44px}
