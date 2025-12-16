@@ -746,44 +746,58 @@ html, body { overflow-x: hidden !important; max-width: 100vw; }
                 <div class="ptp-onboard-card">
                     <h2 class="ptp-onboard-card-title">Training Locations</h2>
                     <p class="ptp-onboard-card-desc">Add the exact locations where you train. Parents will select from these when booking.</p>
-                    
+
+                    <!-- Map for selecting locations -->
+                    <div id="main-location-map" style="height: 300px; border-radius: 12px; overflow: hidden; margin-bottom: 20px; background: #E5E7EB;">
+                        <div id="map-placeholder" style="height: 100%; display: flex; align-items: center; justify-content: center; color: #6B7280;">
+                            <span>Loading map...</span>
+                        </div>
+                    </div>
+
                     <div class="ptp-form-group">
-                        <label class="ptp-form-label">Your Base Location</label>
-                        <p class="ptp-form-hint" style="margin-bottom: 8px;">This helps parents find you when searching by location.</p>
+                        <label class="ptp-form-label">Your Base Location <span style="color: #EF4444;">*</span></label>
+                        <p class="ptp-form-hint" style="margin-bottom: 8px;">This helps parents find you when searching by location. Start typing to search.</p>
                         <div class="ptp-location-wrap">
                             <svg class="ptp-location-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-                            <input type="text" name="location" class="ptp-form-input" value="<?php echo esc_attr($trainer->location ?? ''); ?>" placeholder="Start typing an address..." id="base-location-input" autocomplete="off">
+                            <input type="text" name="location" class="ptp-form-input" value="<?php echo esc_attr($trainer->location ?? ''); ?>" placeholder="Enter city or ZIP code..." id="base-location-input" autocomplete="off" required>
                         </div>
                         <input type="hidden" name="latitude" id="base-latitude" value="<?php echo esc_attr($trainer->latitude ?? ''); ?>">
                         <input type="hidden" name="longitude" id="base-longitude" value="<?php echo esc_attr($trainer->longitude ?? ''); ?>">
+                        <input type="hidden" name="city" id="base-city" value="<?php echo esc_attr($trainer->city ?? ''); ?>">
+                        <input type="hidden" name="state" id="base-state" value="<?php echo esc_attr($trainer->state ?? ''); ?>">
                     </div>
-                    
+
                     <div class="ptp-form-group">
                         <label class="ptp-form-label">Travel Radius</label>
-                        <select name="travel_radius" class="ptp-form-select">
+                        <select name="travel_radius" class="ptp-form-select" id="travel-radius-select">
                             <option value="5" <?php selected($trainer->travel_radius ?? 15, 5); ?>>Up to 5 miles</option>
                             <option value="10" <?php selected($trainer->travel_radius ?? 15, 10); ?>>Up to 10 miles</option>
                             <option value="15" <?php selected($trainer->travel_radius ?? 15, 15); ?>>Up to 15 miles</option>
                             <option value="25" <?php selected($trainer->travel_radius ?? 15, 25); ?>>Up to 25 miles</option>
                             <option value="50" <?php selected($trainer->travel_radius ?? 15, 50); ?>>Up to 50 miles</option>
                         </select>
+                        <p class="ptp-form-hint">How far are you willing to travel for training sessions?</p>
                     </div>
-                    
-                    <div class="ptp-form-group">
-                        <label class="ptp-form-label">Training Fields / Parks</label>
-                        <p class="ptp-form-hint" style="margin-bottom: 12px;">Add specific fields or facilities where you train. Start typing to search for locations.</p>
+
+                    <div class="ptp-form-group" style="border-top: 1px solid #E5E7EB; padding-top: 24px; margin-top: 24px;">
+                        <label class="ptp-form-label">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#FCB900" stroke-width="2" style="display:inline;vertical-align:-3px;margin-right:6px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+                            Training Fields / Parks / Facilities
+                        </label>
+                        <p class="ptp-form-hint" style="margin-bottom: 12px;">Add specific locations where you can meet parents for training sessions. These will show up as options when parents book with you.</p>
                         <div id="training-locations-list">
                             <?php if (!empty($existing_locations)): ?>
-                                <?php foreach ($existing_locations as $i => $loc): 
+                                <?php foreach ($existing_locations as $i => $loc):
                                     $locData = is_array($loc) ? $loc : array('name' => $loc, 'address' => '', 'lat' => '', 'lng' => '');
                                 ?>
                                 <div class="ptp-location-field">
-                                    <div class="ptp-location-input-group">
+                                    <div class="ptp-location-input-group <?php echo (!empty($locData['lat'])) ? 'verified' : ''; ?>">
                                         <input type="text" class="ptp-form-input location-autocomplete" value="<?php echo esc_attr($locData['name'] ?? $locData); ?>" placeholder="Search for a park, field, or facility..." autocomplete="off">
                                         <input type="hidden" name="training_locations[<?php echo $i; ?>][name]" value="<?php echo esc_attr($locData['name'] ?? $locData); ?>">
                                         <input type="hidden" name="training_locations[<?php echo $i; ?>][address]" value="<?php echo esc_attr($locData['address'] ?? ''); ?>">
                                         <input type="hidden" name="training_locations[<?php echo $i; ?>][lat]" value="<?php echo esc_attr($locData['lat'] ?? ''); ?>">
                                         <input type="hidden" name="training_locations[<?php echo $i; ?>][lng]" value="<?php echo esc_attr($locData['lng'] ?? ''); ?>">
+                                        <svg class="location-verified" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
                                     </div>
                                     <button type="button" class="ptp-remove-location" onclick="removeLocation(this)">×</button>
                                 </div>
@@ -796,16 +810,23 @@ html, body { overflow-x: hidden !important; max-width: 100vw; }
                                         <input type="hidden" name="training_locations[0][address]" value="">
                                         <input type="hidden" name="training_locations[0][lat]" value="">
                                         <input type="hidden" name="training_locations[0][lng]" value="">
+                                        <svg class="location-verified" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
                                     </div>
                                     <button type="button" class="ptp-remove-location" onclick="removeLocation(this)">×</button>
                                 </div>
                             <?php endif; ?>
                         </div>
-                        <button type="button" class="ptp-add-location-btn" onclick="addLocationField()">+ Add Another Location</button>
-                        
-                        <!-- Mini Map Preview -->
-                        <div id="locations-map-preview" style="margin-top: 16px; height: 200px; border-radius: 12px; overflow: hidden; background: #F3F4F6; display: none;">
-                            <div id="locations-map" style="width: 100%; height: 100%;"></div>
+                        <button type="button" class="ptp-add-location-btn" onclick="addLocationField()">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                            Add Another Location
+                        </button>
+
+                        <!-- Tip Box -->
+                        <div style="margin-top: 16px; padding: 14px 16px; background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 10px; display: flex; gap: 12px; align-items: flex-start;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2" style="flex-shrink: 0; margin-top: 2px;"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg>
+                            <div style="font-size: 13px; color: #166534; line-height: 1.5;">
+                                <strong>Tip:</strong> Add 2-3 locations where you're comfortable training. Parents can choose from these when booking, making it easier for both of you.
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1159,7 +1180,9 @@ function submitForm() {
 
 // ===== Google Maps Places Integration =====
 let locationIndex = <?php echo max(count($existing_locations), 1); ?>;
-let locationsMap = null;
+let mainMap = null;
+let baseMarker = null;
+let radiusCircle = null;
 let locationMarkers = [];
 
 function addLocationField() {
@@ -1179,7 +1202,7 @@ function addLocationField() {
     `;
     list.appendChild(field);
     locationIndex++;
-    
+
     // Initialize autocomplete on new field
     const input = field.querySelector('.location-autocomplete');
     initLocationAutocomplete(input);
@@ -1189,7 +1212,7 @@ function addLocationField() {
 function removeLocation(btn) {
     const field = btn.closest('.ptp-location-field');
     field.remove();
-    updateLocationsMap();
+    updateMainMap();
 }
 
 function initLocationAutocomplete(input) {
@@ -1201,7 +1224,7 @@ function initLocationAutocomplete(input) {
             nameField.value = input.value.trim();
         }
     });
-    
+
     // Also update on input for real-time sync
     input.addEventListener('input', () => {
         const group = input.closest('.ptp-location-input-group');
@@ -1211,34 +1234,34 @@ function initLocationAutocomplete(input) {
         }
         group.classList.remove('verified');
     });
-    
+
     if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
         console.warn('Google Maps API not loaded - using manual entry');
         return;
     }
-    
+
     const autocomplete = new google.maps.places.Autocomplete(input, {
         types: ['establishment', 'geocode'],
         componentRestrictions: { country: 'us' },
         fields: ['name', 'formatted_address', 'geometry', 'place_id']
     });
-    
+
     autocomplete.addListener('place_changed', () => {
         const place = autocomplete.getPlace();
         const group = input.closest('.ptp-location-input-group');
-        
+
         if (place.geometry) {
             // Update hidden fields
             group.querySelector('input[name$="[name]"]').value = place.name || place.formatted_address;
             group.querySelector('input[name$="[address]"]').value = place.formatted_address || '';
             group.querySelector('input[name$="[lat]"]').value = place.geometry.location.lat();
             group.querySelector('input[name$="[lng]"]').value = place.geometry.location.lng();
-            
+
             // Mark as verified
             group.classList.add('verified');
-            
+
             // Update map
-            updateLocationsMap();
+            updateMainMap();
         }
     });
 }
@@ -1246,124 +1269,234 @@ function initLocationAutocomplete(input) {
 function initBaseLocationAutocomplete() {
     const input = document.getElementById('base-location-input');
     if (!input || typeof google === 'undefined') return;
-    
+
     const autocomplete = new google.maps.places.Autocomplete(input, {
         types: ['(cities)'],
         componentRestrictions: { country: 'us' },
         fields: ['formatted_address', 'geometry', 'address_components']
     });
-    
+
     autocomplete.addListener('place_changed', () => {
         const place = autocomplete.getPlace();
         if (place.geometry) {
-            document.getElementById('base-latitude').value = place.geometry.location.lat();
-            document.getElementById('base-longitude').value = place.geometry.location.lng();
-            
+            const lat = place.geometry.location.lat();
+            const lng = place.geometry.location.lng();
+
+            document.getElementById('base-latitude').value = lat;
+            document.getElementById('base-longitude').value = lng;
+
             // Extract city and state
             let city = '', state = '';
             place.address_components.forEach(comp => {
                 if (comp.types.includes('locality')) city = comp.long_name;
                 if (comp.types.includes('administrative_area_level_1')) state = comp.short_name;
             });
-            
+
+            document.getElementById('base-city').value = city;
+            document.getElementById('base-state').value = state;
+
             if (city && state) {
                 input.value = city + ', ' + state;
             }
+
+            // Update map
+            updateMainMap();
         }
     });
 }
 
-function updateLocationsMap() {
-    const mapContainer = document.getElementById('locations-map-preview');
-    const mapEl = document.getElementById('locations-map');
-    
-    if (!mapEl || typeof google === 'undefined') return;
-    
-    // Gather all locations with coordinates
-    const locations = [];
-    document.querySelectorAll('.ptp-location-input-group').forEach(group => {
-        const lat = group.querySelector('input[name$="[lat]"]')?.value;
-        const lng = group.querySelector('input[name$="[lng]"]')?.value;
-        const name = group.querySelector('input[name$="[name]"]')?.value;
-        
-        if (lat && lng && parseFloat(lat) && parseFloat(lng)) {
-            locations.push({
-                lat: parseFloat(lat),
-                lng: parseFloat(lng),
-                name: name
+function initMainMap() {
+    const mapContainer = document.getElementById('main-location-map');
+    const placeholder = document.getElementById('map-placeholder');
+
+    if (!mapContainer || typeof google === 'undefined') {
+        if (placeholder) {
+            placeholder.innerHTML = '<span style="color:#9CA3AF;">Map requires Google Maps API</span>';
+        }
+        return;
+    }
+
+    // Remove placeholder
+    if (placeholder) placeholder.remove();
+
+    // Default center (Philadelphia)
+    let defaultLat = <?php echo $trainer->latitude ?: '39.9526'; ?>;
+    let defaultLng = <?php echo $trainer->longitude ?: '-75.1652'; ?>;
+
+    mainMap = new google.maps.Map(mapContainer, {
+        zoom: 11,
+        center: { lat: defaultLat, lng: defaultLng },
+        mapTypeControl: false,
+        streetViewControl: false,
+        fullscreenControl: false,
+        styles: [
+            { featureType: 'poi', stylers: [{ visibility: 'off' }] },
+            { featureType: 'transit', stylers: [{ visibility: 'off' }] }
+        ]
+    });
+
+    // Add click listener to add locations
+    mainMap.addListener('click', (e) => {
+        // Find the first empty location field or add a new one
+        const emptyField = document.querySelector('.ptp-location-input-group:not(.verified) input.location-autocomplete');
+        if (emptyField) {
+            // Reverse geocode the click location
+            const geocoder = new google.maps.Geocoder();
+            geocoder.geocode({ location: e.latLng }, (results, status) => {
+                if (status === 'OK' && results[0]) {
+                    const place = results[0];
+                    const group = emptyField.closest('.ptp-location-input-group');
+
+                    emptyField.value = place.formatted_address;
+                    group.querySelector('input[name$="[name]"]').value = place.formatted_address;
+                    group.querySelector('input[name$="[address]"]').value = place.formatted_address;
+                    group.querySelector('input[name$="[lat]"]').value = e.latLng.lat();
+                    group.querySelector('input[name$="[lng]"]').value = e.latLng.lng();
+                    group.classList.add('verified');
+
+                    updateMainMap();
+                }
             });
         }
     });
-    
-    // Show/hide map based on whether we have locations
-    if (locations.length === 0) {
-        mapContainer.style.display = 'none';
-        return;
-    }
-    
-    mapContainer.style.display = 'block';
-    
-    // Initialize or update map
-    if (!locationsMap) {
-        locationsMap = new google.maps.Map(mapEl, {
-            zoom: 12,
-            center: locations[0],
-            mapTypeControl: false,
-            streetViewControl: false,
-            fullscreenControl: false
-        });
-    }
-    
-    // Clear existing markers
+
+    // Initialize markers and radius if we have existing data
+    updateMainMap();
+}
+
+function updateMainMap() {
+    if (!mainMap || typeof google === 'undefined') return;
+
+    // Clear existing markers (except base)
     locationMarkers.forEach(m => m.setMap(null));
     locationMarkers = [];
-    
-    // Add markers
+
     const bounds = new google.maps.LatLngBounds();
-    locations.forEach((loc, i) => {
-        const marker = new google.maps.Marker({
-            position: { lat: loc.lat, lng: loc.lng },
-            map: locationsMap,
-            title: loc.name,
-            label: {
-                text: String(i + 1),
-                color: '#000',
-                fontWeight: 'bold'
-            },
-            icon: {
-                path: google.maps.SymbolPath.CIRCLE,
-                scale: 12,
-                fillColor: '#FCB900',
-                fillOpacity: 1,
-                strokeColor: '#000',
-                strokeWeight: 2
-            }
-        });
-        locationMarkers.push(marker);
-        bounds.extend(marker.getPosition());
+    let hasLocations = false;
+
+    // Base location marker
+    const baseLat = parseFloat(document.getElementById('base-latitude').value);
+    const baseLng = parseFloat(document.getElementById('base-longitude').value);
+
+    if (baseLat && baseLng) {
+        hasLocations = true;
+        const basePos = { lat: baseLat, lng: baseLng };
+        bounds.extend(basePos);
+
+        // Update or create base marker
+        if (baseMarker) {
+            baseMarker.setPosition(basePos);
+        } else {
+            baseMarker = new google.maps.Marker({
+                position: basePos,
+                map: mainMap,
+                title: 'Your Base Location',
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 14,
+                    fillColor: '#3B82F6',
+                    fillOpacity: 1,
+                    strokeColor: '#fff',
+                    strokeWeight: 3
+                },
+                zIndex: 100
+            });
+        }
+
+        // Update or create radius circle
+        const radiusMiles = parseInt(document.getElementById('travel-radius-select').value) || 15;
+        const radiusMeters = radiusMiles * 1609.34;
+
+        if (radiusCircle) {
+            radiusCircle.setCenter(basePos);
+            radiusCircle.setRadius(radiusMeters);
+        } else {
+            radiusCircle = new google.maps.Circle({
+                strokeColor: '#3B82F6',
+                strokeOpacity: 0.3,
+                strokeWeight: 2,
+                fillColor: '#3B82F6',
+                fillOpacity: 0.1,
+                map: mainMap,
+                center: basePos,
+                radius: radiusMeters
+            });
+        }
+    }
+
+    // Training location markers
+    document.querySelectorAll('.ptp-location-input-group').forEach((group, i) => {
+        const lat = parseFloat(group.querySelector('input[name$="[lat]"]')?.value);
+        const lng = parseFloat(group.querySelector('input[name$="[lng]"]')?.value);
+        const name = group.querySelector('input[name$="[name]"]')?.value || `Location ${i + 1}`;
+
+        if (lat && lng) {
+            hasLocations = true;
+            const pos = { lat, lng };
+            bounds.extend(pos);
+
+            const marker = new google.maps.Marker({
+                position: pos,
+                map: mainMap,
+                title: name,
+                label: {
+                    text: String(i + 1),
+                    color: '#0E0F11',
+                    fontWeight: 'bold',
+                    fontSize: '12px'
+                },
+                icon: {
+                    path: google.maps.SymbolPath.CIRCLE,
+                    scale: 14,
+                    fillColor: '#FCB900',
+                    fillOpacity: 1,
+                    strokeColor: '#0E0F11',
+                    strokeWeight: 2
+                },
+                animation: google.maps.Animation.DROP
+            });
+
+            // Info window on click
+            const infoWindow = new google.maps.InfoWindow({
+                content: `<div style="font-family:Inter,sans-serif;padding:8px;"><strong>${name}</strong></div>`
+            });
+
+            marker.addListener('click', () => {
+                infoWindow.open(mainMap, marker);
+            });
+
+            locationMarkers.push(marker);
+        }
     });
-    
-    // Fit bounds
-    if (locations.length > 1) {
-        locationsMap.fitBounds(bounds);
-    } else {
-        locationsMap.setCenter(locations[0]);
-        locationsMap.setZoom(14);
+
+    // Fit bounds if we have locations
+    if (hasLocations) {
+        if (locationMarkers.length > 0 || baseMarker) {
+            mainMap.fitBounds(bounds);
+            // Don't zoom in too far
+            const listener = google.maps.event.addListener(mainMap, 'idle', () => {
+                if (mainMap.getZoom() > 14) mainMap.setZoom(14);
+                google.maps.event.removeListener(listener);
+            });
+        }
     }
 }
 
+// Listen for travel radius changes
+document.getElementById('travel-radius-select')?.addEventListener('change', updateMainMap);
+
 // Initialize Google Maps when API loads
 function initGoogleMaps() {
+    // Init main map
+    initMainMap();
+
     // Init base location autocomplete
     initBaseLocationAutocomplete();
-    
+
     // Init all existing location autocompletes
     document.querySelectorAll('.location-autocomplete').forEach(input => {
         initLocationAutocomplete(input);
     });
-    
-    // Update map if we have existing locations
-    updateLocationsMap();
 }
 
 // Check if Google Maps is already loaded or wait for it

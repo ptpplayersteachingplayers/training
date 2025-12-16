@@ -4001,3 +4001,461 @@ input:checked + .ptp-rating-btn {
         animation: none;
     }
 }
+
+/* ============================================
+   55. COMPREHENSIVE RESPONSIVE SYSTEM v31
+   Screen-adaptive layouts for all devices
+   ============================================ */
+
+/* === Global Responsive Resets === */
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+    -webkit-text-size-adjust: 100%;
+}
+
+img, video, iframe {
+    max-width: 100%;
+    height: auto;
+}
+
+/* === Responsive Typography === */
+@media (max-width: 768px) {
+    :root {
+        --ptp-text-4xl: 28px;
+        --ptp-text-5xl: 36px;
+        --ptp-text-6xl: 48px;
+    }
+}
+
+@media (max-width: 480px) {
+    :root {
+        --ptp-text-3xl: 24px;
+        --ptp-text-4xl: 26px;
+        --ptp-text-5xl: 32px;
+        --ptp-text-6xl: 40px;
+    }
+}
+
+/* === Responsive Containers === */
+.ptp-container {
+    width: 100%;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding-left: var(--ptp-space-4);
+    padding-right: var(--ptp-space-4);
+}
+
+@media (min-width: 640px) {
+    .ptp-container {
+        padding-left: var(--ptp-space-6);
+        padding-right: var(--ptp-space-6);
+    }
+}
+
+@media (min-width: 1024px) {
+    .ptp-container {
+        padding-left: var(--ptp-space-8);
+        padding-right: var(--ptp-space-8);
+    }
+}
+
+/* === Responsive Grid System === */
+.ptp-grid {
+    display: grid;
+    gap: var(--ptp-space-4);
+}
+
+.ptp-grid-1 { grid-template-columns: 1fr; }
+
+@media (min-width: 500px) {
+    .ptp-grid-2 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 768px) {
+    .ptp-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .ptp-grid-4 { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+    .ptp-grid-4 { grid-template-columns: repeat(4, 1fr); }
+}
+
+/* === Responsive Flex === */
+.ptp-flex-col-mobile {
+    display: flex;
+    flex-direction: column;
+    gap: var(--ptp-space-4);
+}
+
+@media (min-width: 768px) {
+    .ptp-flex-col-mobile {
+        flex-direction: row;
+    }
+}
+
+/* === Responsive Display Utilities === */
+.ptp-hide-mobile { display: none; }
+.ptp-show-mobile { display: block; }
+
+@media (min-width: 768px) {
+    .ptp-hide-mobile { display: block; }
+    .ptp-show-mobile { display: none; }
+}
+
+@media (min-width: 1024px) {
+    .ptp-hide-tablet { display: block; }
+    .ptp-show-tablet { display: none; }
+}
+
+/* === Responsive Spacing === */
+@media (max-width: 768px) {
+    .ptp-section {
+        padding-top: var(--ptp-space-8);
+        padding-bottom: var(--ptp-space-8);
+    }
+
+    .ptp-card {
+        padding: var(--ptp-space-4);
+    }
+
+    .ptp-modal-content {
+        margin: var(--ptp-space-4);
+        max-height: calc(100vh - 32px);
+    }
+}
+
+/* === Dashboard Responsive Layout === */
+@media (max-width: 1024px) {
+    .ptp-dashboard-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .ptp-dashboard-sidebar {
+        position: fixed;
+        left: -280px;
+        top: 0;
+        bottom: 0;
+        z-index: 1000;
+        transition: left 0.3s ease;
+        width: 280px;
+    }
+
+    .ptp-dashboard-sidebar.open {
+        left: 0;
+    }
+
+    .ptp-sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+    }
+
+    .ptp-sidebar-overlay.active {
+        display: block;
+    }
+}
+
+/* === Responsive Form Elements === */
+@media (max-width: 640px) {
+    .ptp-form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .ptp-input,
+    .ptp-select,
+    .ptp-textarea {
+        font-size: 16px; /* Prevents iOS zoom */
+    }
+
+    .ptp-btn-group {
+        flex-direction: column;
+    }
+
+    .ptp-btn-group .ptp-btn {
+        width: 100%;
+    }
+}
+
+/* === Responsive Tables === */
+@media (max-width: 768px) {
+    .ptp-table-responsive {
+        display: block;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .ptp-table-stack thead {
+        display: none;
+    }
+
+    .ptp-table-stack tr {
+        display: block;
+        margin-bottom: var(--ptp-space-4);
+        border: 1px solid var(--ptp-gray-200);
+        border-radius: var(--ptp-radius-lg);
+        padding: var(--ptp-space-4);
+    }
+
+    .ptp-table-stack td {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: var(--ptp-space-2) 0;
+        border: none;
+    }
+
+    .ptp-table-stack td::before {
+        content: attr(data-label);
+        font-weight: var(--ptp-font-semibold);
+        color: var(--ptp-gray-500);
+    }
+}
+
+/* === Responsive Navigation === */
+@media (max-width: 768px) {
+    .ptp-nav {
+        flex-direction: column;
+        gap: var(--ptp-space-2);
+    }
+
+    .ptp-nav-item {
+        width: 100%;
+        justify-content: flex-start;
+    }
+
+    .ptp-tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .ptp-tabs::-webkit-scrollbar {
+        display: none;
+    }
+
+    .ptp-tab {
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+}
+
+/* === Responsive Cards === */
+@media (max-width: 640px) {
+    .ptp-card-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--ptp-space-3);
+    }
+
+    .ptp-card-actions {
+        width: 100%;
+    }
+
+    .ptp-card-actions .ptp-btn {
+        flex: 1;
+    }
+}
+
+/* === Responsive Stats Grid === */
+@media (max-width: 640px) {
+    .ptp-stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .ptp-stat-value {
+        font-size: var(--ptp-text-2xl);
+    }
+}
+
+@media (max-width: 400px) {
+    .ptp-stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* === Responsive Trainer Cards === */
+@media (max-width: 640px) {
+    .ptp-trainer-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .ptp-trainer-card {
+        max-width: 100%;
+    }
+}
+
+@media (min-width: 640px) and (max-width: 1024px) {
+    .ptp-trainer-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* === Responsive Session/Booking Cards === */
+@media (max-width: 640px) {
+    .ptp-session-card {
+        flex-direction: column;
+    }
+
+    .ptp-session-info {
+        width: 100%;
+    }
+
+    .ptp-session-actions {
+        width: 100%;
+        flex-direction: row;
+        justify-content: stretch;
+    }
+
+    .ptp-session-actions .ptp-btn {
+        flex: 1;
+    }
+}
+
+/* === Responsive Modals === */
+@media (max-width: 640px) {
+    .ptp-modal-content {
+        width: calc(100% - 32px);
+        max-width: none;
+        margin: var(--ptp-space-4);
+        border-radius: var(--ptp-radius-xl);
+    }
+
+    .ptp-modal-header,
+    .ptp-modal-body,
+    .ptp-modal-footer {
+        padding: var(--ptp-space-4);
+    }
+
+    .ptp-modal-footer {
+        flex-direction: column-reverse;
+        gap: var(--ptp-space-3);
+    }
+
+    .ptp-modal-footer .ptp-btn {
+        width: 100%;
+    }
+}
+
+/* === Responsive Hero Sections === */
+@media (max-width: 768px) {
+    .ptp-hero {
+        padding: var(--ptp-space-12) var(--ptp-space-4);
+        text-align: center;
+    }
+
+    .ptp-hero-title {
+        font-size: var(--ptp-text-3xl);
+    }
+
+    .ptp-hero-subtitle {
+        font-size: var(--ptp-text-base);
+    }
+
+    .ptp-hero-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+/* === Responsive Calendar === */
+@media (max-width: 480px) {
+    .ptp-calendar {
+        padding: var(--ptp-space-3);
+    }
+
+    .ptp-calendar-day {
+        min-height: 36px;
+        font-size: var(--ptp-text-xs);
+    }
+
+    .ptp-calendar-header {
+        font-size: var(--ptp-text-sm);
+    }
+}
+
+/* === Responsive Messages/Chat === */
+@media (max-width: 768px) {
+    .ptp-messages-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .ptp-messages-sidebar {
+        position: fixed;
+        left: -100%;
+        top: 0;
+        bottom: 0;
+        width: 100%;
+        z-index: 100;
+        transition: left 0.3s ease;
+    }
+
+    .ptp-messages-sidebar.open {
+        left: 0;
+    }
+}
+
+/* === Touch-Friendly Spacing === */
+@media (max-width: 768px) {
+    .ptp-clickable,
+    a,
+    button {
+        min-height: 44px;
+        min-width: 44px;
+    }
+
+    .ptp-list-item {
+        padding: var(--ptp-space-4);
+    }
+}
+
+/* === Prevent Horizontal Scroll === */
+.ptp-page,
+.ptp-main,
+.ptp-content {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* === Responsive Avatars === */
+@media (max-width: 640px) {
+    .ptp-avatar-xl {
+        width: 80px;
+        height: 80px;
+    }
+
+    .ptp-avatar-2xl {
+        width: 100px;
+        height: 100px;
+    }
+}
+
+/* === Bottom Safe Area for Fixed Elements === */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+    .ptp-fixed-bottom {
+        padding-bottom: calc(var(--ptp-space-4) + env(safe-area-inset-bottom));
+    }
+
+    .ptp-bottom-nav {
+        padding-bottom: env(safe-area-inset-bottom);
+    }
+}
+
+/* === Responsive Print Styles === */
+@media print {
+    .ptp-hide-print,
+    .ptp-nav,
+    .ptp-sidebar,
+    .ptp-modal,
+    .ptp-btn {
+        display: none !important;
+    }
+
+    .ptp-card {
+        box-shadow: none;
+        border: 1px solid var(--ptp-gray-200);
+    }
+}

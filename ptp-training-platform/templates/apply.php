@@ -1,7 +1,8 @@
 <?php
 /**
- * Template: Apply as Trainer v30
+ * Template: Apply as Trainer v31
  * Multi-step wizard, mobile-optimized, conversion-focused
+ * FIXED: Form submission and validation
  */
 defined('ABSPATH') || exit;
 
@@ -10,146 +11,151 @@ $success = false;
 $submitted_name = '';
 
 // Handle form submission
-if (isset($_POST['ptp_apply']) && wp_verify_nonce($_POST['ptp_apply_nonce'], 'ptp_apply')) {
-    $name = sanitize_text_field($_POST['name']);
-    $email = sanitize_email($_POST['email']);
-    $phone = sanitize_text_field($_POST['phone']);
-    $playing_level = sanitize_text_field($_POST['playing_level']);
-    $college = sanitize_text_field($_POST['college']);
-    $team = sanitize_text_field($_POST['team'] ?? '');
-    $position = sanitize_text_field($_POST['position'] ?? '');
-    $city = sanitize_text_field($_POST['city']);
-    $state = sanitize_text_field($_POST['state']);
-    $specialties = isset($_POST['specialties']) ? array_map('sanitize_text_field', $_POST['specialties']) : array();
-    $instagram = sanitize_text_field($_POST['instagram'] ?? '');
-    $bio = sanitize_textarea_field($_POST['bio']);
-    $hourly_rate = floatval($_POST['hourly_rate'] ?? 70);
-    $travel_radius = intval($_POST['travel_radius'] ?? 15);
-    $how_heard = sanitize_text_field($_POST['how_heard'] ?? '');
-    
-    $submitted_name = $name;
-    
-    if (empty($name) || empty($email) || empty($phone) || empty($playing_level) || empty($city) || empty($state)) {
-        $error = 'Please fill in all required fields.';
-    } elseif (!is_email($email)) {
-        $error = 'Please enter a valid email address.';
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['ptp_apply'])) {
+    // Verify nonce
+    if (!isset($_POST['ptp_apply_nonce']) || !wp_verify_nonce($_POST['ptp_apply_nonce'], 'ptp_apply')) {
+        $error = 'Security verification failed. Please refresh the page and try again.';
     } else {
-        global $wpdb;
-        
-        // Check for existing application
-        $exists = $wpdb->get_var($wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}ptp_applications WHERE email = %s",
-            $email
-        ));
-        
-        // Check if already a trainer
-        $is_trainer = $wpdb->get_var($wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}ptp_trainers WHERE email = %s",
-            $email
-        ));
-        
-        if ($exists) {
-            $error = 'An application with this email already exists. We\'ll be in touch soon!';
-        } elseif ($is_trainer) {
-            $error = 'You\'re already registered as a trainer. Please log in to your account.';
+        $name = sanitize_text_field($_POST['name'] ?? '');
+        $email = sanitize_email($_POST['email'] ?? '');
+        $phone = sanitize_text_field($_POST['phone'] ?? '');
+        $playing_level = sanitize_text_field($_POST['playing_level'] ?? '');
+        $college = sanitize_text_field($_POST['college'] ?? '');
+        $team = sanitize_text_field($_POST['team'] ?? '');
+        $position = sanitize_text_field($_POST['position'] ?? '');
+        $city = sanitize_text_field($_POST['city'] ?? '');
+        $state = sanitize_text_field($_POST['state'] ?? '');
+        $specialties = isset($_POST['specialties']) ? array_map('sanitize_text_field', $_POST['specialties']) : array();
+        $instagram = sanitize_text_field($_POST['instagram'] ?? '');
+        $bio = sanitize_textarea_field($_POST['bio'] ?? '');
+        $hourly_rate = floatval($_POST['hourly_rate'] ?? 70);
+        $travel_radius = intval($_POST['travel_radius'] ?? 15);
+        $how_heard = sanitize_text_field($_POST['how_heard'] ?? '');
+
+        $submitted_name = $name;
+
+        if (empty($name) || empty($email) || empty($phone) || empty($playing_level) || empty($city) || empty($state)) {
+            $error = 'Please fill in all required fields.';
+        } elseif (!is_email($email)) {
+            $error = 'Please enter a valid email address.';
         } else {
-            $location = trim($city . ', ' . $state);
-            $specialties_str = implode(', ', $specialties);
-            
-            $result = $wpdb->insert(
-                $wpdb->prefix . 'ptp_applications',
-                array(
-                    'name' => $name,
-                    'email' => $email,
-                    'phone' => $phone,
-                    'playing_level' => $playing_level,
-                    'college' => $college,
-                    'team' => $team,
-                    'position' => $position,
-                    'location' => $location,
-                    'specialties' => $specialties_str,
-                    'instagram' => ltrim($instagram, '@'),
-                    'bio' => $bio,
-                    'hourly_rate' => $hourly_rate,
-                    'travel_radius' => $travel_radius,
-                    'admin_notes' => 'How heard: ' . $how_heard,
-                    'status' => 'pending',
-                    'created_at' => current_time('mysql')
-                ),
-                array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%f', '%d', '%s', '%s', '%s')
-            );
-            
-            if ($result) {
-                $success = true;
-                $app_id = $wpdb->insert_id;
-                
-                // Get playing level label
-                $levels = array(
-                    'pro' => 'Professional',
-                    'college_d1' => 'NCAA Division 1',
-                    'college_d2' => 'NCAA Division 2',
-                    'college_d3' => 'NCAA Division 3',
-                    'semi_pro' => 'Semi-Professional',
-                    'academy' => 'Elite Academy / Club'
-                );
-                $level_label = $levels[$playing_level] ?? $playing_level;
-                $review_url = admin_url('admin.php?page=ptp-applications&status=pending');
-                
-                // Build admin notification HTML
-                $admin_html = '
-                <div style="font-family:-apple-system,sans-serif;max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
-                    <div style="background:#0E0F11;padding:24px 32px;">
-                        <h1 style="margin:0;color:#FCB900;font-size:20px;">New Trainer Application</h1>
-                    </div>
-                    <div style="padding:32px;">
-                        <div style="background:#F0FDF4;border-left:4px solid #22C55E;padding:16px;border-radius:0 8px 8px 0;margin-bottom:24px;">
-                            <strong style="color:#166534;">🎯 ' . esc_html($name) . '</strong><br>
-                            <span style="color:#15803D;">' . esc_html($level_label) . '</span>
-                        </div>
-                        <table style="width:100%;border-collapse:collapse;">
-                            <tr><td style="padding:8px 0;color:#6B7280;width:100px;">Email</td><td style="padding:8px 0;"><a href="mailto:' . esc_attr($email) . '">' . esc_html($email) . '</a></td></tr>
-                            <tr><td style="padding:8px 0;color:#6B7280;">Phone</td><td style="padding:8px 0;"><a href="tel:' . esc_attr($phone) . '">' . esc_html($phone) . '</a></td></tr>
-                            <tr><td style="padding:8px 0;color:#6B7280;">College</td><td style="padding:8px 0;">' . esc_html($college ?: 'Not specified') . '</td></tr>
-                            <tr><td style="padding:8px 0;color:#6B7280;">Location</td><td style="padding:8px 0;">' . esc_html($location) . '</td></tr>
-                            <tr><td style="padding:8px 0;color:#6B7280;">Specialties</td><td style="padding:8px 0;">' . esc_html($specialties_str ?: 'None selected') . '</td></tr>
-                            <tr><td style="padding:8px 0;color:#6B7280;">Rate</td><td style="padding:8px 0;">$' . number_format($hourly_rate, 0) . '/hr</td></tr>
-                        </table>
-                        ' . ($bio ? '<div style="margin-top:20px;padding:16px;background:#F9FAFB;border-radius:8px;"><strong style="display:block;margin-bottom:8px;color:#374151;">Bio</strong><p style="margin:0;color:#6B7280;line-height:1.6;">' . esc_html(wp_trim_words($bio, 50)) . '</p></div>' : '') . '
-                        <div style="margin-top:24px;text-align:center;">
-                            <a href="' . esc_url($review_url) . '" style="display:inline-block;background:#FCB900;color:#0E0F11;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;">Review Application</a>
-                        </div>
-                    </div>
-                </div>';
-                
-                // Send admin notification
-                $admin_email = get_option('admin_email');
-                $admin_subject = '🎯 New Trainer Application - ' . $name;
-                
-                add_filter('wp_mail_content_type', function() { return 'text/html'; });
-                wp_mail($admin_email, $admin_subject, $admin_html);
-                remove_filter('wp_mail_content_type', function() { return 'text/html'; });
-                
-                // Send applicant confirmation
-                if (class_exists('PTP_Email')) {
-                    PTP_Email::send_application_received($email, $name);
-                }
-                
-                // Also notify via SMS if enabled
-                if (class_exists('PTP_SMS') && method_exists('PTP_SMS', 'send')) {
-                    $admin_phone = get_option('ptp_admin_phone', '');
-                    if ($admin_phone) {
-                        PTP_SMS::send($admin_phone, "New trainer application from {$name} ({$level_label}). Check admin panel to review.");
-                    }
-                }
+            global $wpdb;
+
+            // Check for existing application
+            $exists = $wpdb->get_var($wpdb->prepare(
+                "SELECT id FROM {$wpdb->prefix}ptp_applications WHERE email = %s",
+                $email
+            ));
+
+            // Check if already a trainer
+            $is_trainer = $wpdb->get_var($wpdb->prepare(
+                "SELECT id FROM {$wpdb->prefix}ptp_trainers WHERE email = %s",
+                $email
+            ));
+
+            if ($exists) {
+                $error = 'An application with this email already exists. We\'ll be in touch soon!';
+            } elseif ($is_trainer) {
+                $error = 'You\'re already registered as a trainer. Please log in to your account.';
             } else {
-                $error = 'Something went wrong. Please try again.';
+                $location = trim($city . ', ' . $state);
+                $specialties_str = implode(', ', $specialties);
+
+                $result = $wpdb->insert(
+                    $wpdb->prefix . 'ptp_applications',
+                    array(
+                        'name' => $name,
+                        'email' => $email,
+                        'phone' => $phone,
+                        'playing_level' => $playing_level,
+                        'college' => $college,
+                        'team' => $team,
+                        'position' => $position,
+                        'location' => $location,
+                        'specialties' => $specialties_str,
+                        'instagram' => ltrim($instagram, '@'),
+                        'bio' => $bio,
+                        'hourly_rate' => $hourly_rate,
+                        'travel_radius' => $travel_radius,
+                        'admin_notes' => 'How heard: ' . $how_heard,
+                        'status' => 'pending',
+                        'created_at' => current_time('mysql')
+                    ),
+                    array('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%f', '%d', '%s', '%s', '%s')
+                );
+
+                if ($result) {
+                    $success = true;
+                    $app_id = $wpdb->insert_id;
+
+                    // Get playing level label
+                    $levels = array(
+                        'pro' => 'Professional',
+                        'college_d1' => 'NCAA Division 1',
+                        'college_d2' => 'NCAA Division 2',
+                        'college_d3' => 'NCAA Division 3',
+                        'semi_pro' => 'Semi-Professional',
+                        'academy' => 'Elite Academy / Club'
+                    );
+                    $level_label = $levels[$playing_level] ?? $playing_level;
+                    $review_url = admin_url('admin.php?page=ptp-applications&status=pending');
+
+                    // Build admin notification HTML
+                    $admin_html = '
+                    <div style="font-family:-apple-system,sans-serif;max-width:600px;margin:0 auto;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,0.1);">
+                        <div style="background:#0E0F11;padding:24px 32px;">
+                            <h1 style="margin:0;color:#FCB900;font-size:20px;">New Trainer Application</h1>
+                        </div>
+                        <div style="padding:32px;">
+                            <div style="background:#F0FDF4;border-left:4px solid #22C55E;padding:16px;border-radius:0 8px 8px 0;margin-bottom:24px;">
+                                <strong style="color:#166534;">' . esc_html($name) . '</strong><br>
+                                <span style="color:#15803D;">' . esc_html($level_label) . '</span>
+                            </div>
+                            <table style="width:100%;border-collapse:collapse;">
+                                <tr><td style="padding:8px 0;color:#6B7280;width:100px;">Email</td><td style="padding:8px 0;"><a href="mailto:' . esc_attr($email) . '">' . esc_html($email) . '</a></td></tr>
+                                <tr><td style="padding:8px 0;color:#6B7280;">Phone</td><td style="padding:8px 0;"><a href="tel:' . esc_attr($phone) . '">' . esc_html($phone) . '</a></td></tr>
+                                <tr><td style="padding:8px 0;color:#6B7280;">College</td><td style="padding:8px 0;">' . esc_html($college ?: 'Not specified') . '</td></tr>
+                                <tr><td style="padding:8px 0;color:#6B7280;">Location</td><td style="padding:8px 0;">' . esc_html($location) . '</td></tr>
+                                <tr><td style="padding:8px 0;color:#6B7280;">Specialties</td><td style="padding:8px 0;">' . esc_html($specialties_str ?: 'None selected') . '</td></tr>
+                                <tr><td style="padding:8px 0;color:#6B7280;">Rate</td><td style="padding:8px 0;">$' . number_format($hourly_rate, 0) . '/hr</td></tr>
+                            </table>
+                            ' . ($bio ? '<div style="margin-top:20px;padding:16px;background:#F9FAFB;border-radius:8px;"><strong style="display:block;margin-bottom:8px;color:#374151;">Bio</strong><p style="margin:0;color:#6B7280;line-height:1.6;">' . esc_html(wp_trim_words($bio, 50)) . '</p></div>' : '') . '
+                            <div style="margin-top:24px;text-align:center;">
+                                <a href="' . esc_url($review_url) . '" style="display:inline-block;background:#FCB900;color:#0E0F11;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;">Review Application</a>
+                            </div>
+                        </div>
+                    </div>';
+
+                    // Send admin notification
+                    $admin_email = get_option('admin_email');
+                    $admin_subject = 'New Trainer Application - ' . $name;
+
+                    add_filter('wp_mail_content_type', function() { return 'text/html'; });
+                    wp_mail($admin_email, $admin_subject, $admin_html);
+                    remove_filter('wp_mail_content_type', function() { return 'text/html'; });
+
+                    // Send applicant confirmation
+                    if (class_exists('PTP_Email')) {
+                        PTP_Email::send_application_received($email, $name);
+                    }
+
+                    // Also notify via SMS if enabled
+                    if (class_exists('PTP_SMS') && method_exists('PTP_SMS', 'send')) {
+                        $admin_phone = get_option('ptp_admin_phone', '');
+                        if ($admin_phone) {
+                            PTP_SMS::send($admin_phone, "New trainer application from {$name} ({$level_label}). Check admin panel to review.");
+                        }
+                    }
+                } else {
+                    $error = 'Something went wrong. Please try again. (DB Error: ' . $wpdb->last_error . ')';
+                }
             }
         }
     }
 }
 
-$logo_url = PTP_Images::logo();
-$hero_bg = PTP_Images::get('BG7A1642');
+$logo_url = class_exists('PTP_Images') ? PTP_Images::logo() : '';
+$hero_bg = class_exists('PTP_Images') ? PTP_Images::get('BG7A1642') : '';
 
 get_header();
 ?>
@@ -613,6 +619,7 @@ get_header();
 <script>
 let currentStep = 1;
 const totalSteps = 3;
+let isSubmitting = false;
 
 function updateStepIndicator() {
     document.querySelectorAll('.step-dot').forEach((dot, i) => {
@@ -624,34 +631,50 @@ function updateStepIndicator() {
 
 function showStep(step) {
     document.querySelectorAll('.form-step').forEach(s => s.classList.remove('active'));
-    document.querySelector(`.form-step[data-step="${step}"]`).classList.add('active');
+    const targetStep = document.querySelector(`.form-step[data-step="${step}"]`);
+    if (targetStep) {
+        targetStep.classList.add('active');
+    }
     updateStepIndicator();
-    window.scrollTo({ top: document.querySelector('.apply-form-container').offsetTop - 20, behavior: 'smooth' });
+    const formContainer = document.querySelector('.apply-form-container');
+    if (formContainer) {
+        window.scrollTo({ top: formContainer.offsetTop - 20, behavior: 'smooth' });
+    }
 }
 
 function validateStep(step) {
     const stepEl = document.querySelector(`.form-step[data-step="${step}"]`);
+    if (!stepEl) return true;
+
     const fields = stepEl.querySelectorAll('[data-required="true"]');
     let valid = true;
-    
+    let firstInvalid = null;
+
     fields.forEach(field => {
-        if (!field.value.trim()) {
+        if (!field.value || !field.value.trim()) {
             field.style.borderColor = '#EF4444';
             valid = false;
+            if (!firstInvalid) firstInvalid = field;
         } else {
             field.style.borderColor = '#E5E7EB';
         }
     });
-    
+
     // Email validation for step 1
     if (step === 1) {
         const email = stepEl.querySelector('input[name="email"]');
         if (email && email.value && !email.value.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
             email.style.borderColor = '#EF4444';
             valid = false;
+            if (!firstInvalid) firstInvalid = email;
         }
     }
-    
+
+    // Focus first invalid field
+    if (!valid && firstInvalid) {
+        firstInvalid.focus();
+    }
+
     return valid;
 }
 
@@ -659,7 +682,7 @@ function nextStep() {
     if (!validateStep(currentStep)) {
         return;
     }
-    
+
     if (currentStep < totalSteps) {
         currentStep++;
         showStep(currentStep);
@@ -674,43 +697,72 @@ function prevStep() {
 }
 
 function updateRate(value) {
-    document.getElementById('rateValue').textContent = value;
+    const el = document.getElementById('rateValue');
+    if (el) el.textContent = value;
 }
 
-// Handle form submission
-document.getElementById('applyForm').addEventListener('submit', function(e) {
-    // Validate all steps before submitting
-    for (let i = 1; i <= totalSteps; i++) {
-        if (!validateStep(i)) {
+// Initialize on DOM ready
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('applyForm');
+    if (!form) return;
+
+    // Handle form submission
+    form.addEventListener('submit', function(e) {
+        // Prevent double submission
+        if (isSubmitting) {
             e.preventDefault();
-            currentStep = i;
-            showStep(i);
             return false;
         }
-    }
-    // Form is valid, allow submission
-    return true;
-});
 
-// Phone formatting
-document.querySelector('input[name="phone"]')?.addEventListener('input', function(e) {
-    let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
-    e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
-});
-
-// Form validation feedback
-document.querySelectorAll('.form-input').forEach(input => {
-    input.addEventListener('blur', function() {
-        if (this.dataset.required === 'true' && !this.value.trim()) {
-            this.style.borderColor = '#EF4444';
-        } else {
-            this.style.borderColor = '#E5E7EB';
+        // Validate all steps before submitting
+        for (let i = 1; i <= totalSteps; i++) {
+            if (!validateStep(i)) {
+                e.preventDefault();
+                currentStep = i;
+                showStep(i);
+                return false;
+            }
         }
+
+        // Form is valid, show loading state and allow submission
+        isSubmitting = true;
+        const submitBtn = form.querySelector('.btn-submit');
+        if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><circle cx="12" cy="12" r="10" stroke-opacity="0.25"/><path d="M12 2a10 10 0 0 1 10 10"/></svg> Submitting...';
+        }
+
+        return true;
     });
-    input.addEventListener('focus', function() {
-        this.style.borderColor = '#FCB900';
+
+    // Phone formatting
+    const phoneInput = document.querySelector('input[name="phone"]');
+    if (phoneInput) {
+        phoneInput.addEventListener('input', function(e) {
+            let x = e.target.value.replace(/\D/g, '').match(/(\d{0,3})(\d{0,3})(\d{0,4})/);
+            e.target.value = !x[2] ? x[1] : '(' + x[1] + ') ' + x[2] + (x[3] ? '-' + x[3] : '');
+        });
+    }
+
+    // Form validation feedback
+    document.querySelectorAll('.form-input').forEach(input => {
+        input.addEventListener('blur', function() {
+            if (this.dataset.required === 'true' && (!this.value || !this.value.trim())) {
+                this.style.borderColor = '#EF4444';
+            } else {
+                this.style.borderColor = '#E5E7EB';
+            }
+        });
+        input.addEventListener('focus', function() {
+            this.style.borderColor = '#FCB900';
+        });
     });
 });
+
+// Add spin animation
+const styleSheet = document.createElement('style');
+styleSheet.textContent = '@keyframes spin{to{transform:rotate(360deg)}}';
+document.head.appendChild(styleSheet);
 </script>
 
 <?php get_footer(); ?>
