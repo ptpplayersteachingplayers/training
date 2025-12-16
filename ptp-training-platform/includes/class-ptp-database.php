@@ -27,6 +27,8 @@ class PTP_Database {
             gallery text,
             hourly_rate decimal(10,2) NOT NULL DEFAULT 0,
             location varchar(255) DEFAULT '',
+            city varchar(100) DEFAULT '',
+            state varchar(50) DEFAULT '',
             latitude decimal(10,8) DEFAULT NULL,
             longitude decimal(11,8) DEFAULT NULL,
             travel_radius int(11) DEFAULT 15,

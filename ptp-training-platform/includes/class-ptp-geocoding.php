@@ -306,25 +306,27 @@ class PTP_Geocoding {
      */
     public static function update_trainer_location($trainer_id, $address) {
         global $wpdb;
-        
+
         $location = self::geocode($address);
-        
+
         if (!$location['success']) {
             return false;
         }
-        
+
         $wpdb->update(
             $wpdb->prefix . 'ptp_trainers',
             array(
                 'location' => $location['formatted_address'],
+                'city' => $location['city'] ?? '',
+                'state' => $location['state'] ?? '',
                 'latitude' => $location['latitude'],
                 'longitude' => $location['longitude'],
             ),
             array('id' => $trainer_id),
-            array('%s', '%f', '%f'),
+            array('%s', '%s', '%s', '%f', '%f'),
             array('%d')
         );
-        
+
         return $location;
     }
     

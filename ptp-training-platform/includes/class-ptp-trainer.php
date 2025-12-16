@@ -203,7 +203,7 @@ class PTP_Trainer {
         $update_data = array();
         $allowed_fields = array(
             'display_name', 'slug', 'headline', 'bio', 'photo_url', 'hourly_rate',
-            'location', 'latitude', 'longitude', 'travel_radius', 'college',
+            'location', 'city', 'state', 'latitude', 'longitude', 'travel_radius', 'college',
             'team', 'position', 'specialties', 'instagram', 'status', 'is_featured',
             'is_verified', 'is_background_checked', 'email', 'phone', 'playing_level'
         );
