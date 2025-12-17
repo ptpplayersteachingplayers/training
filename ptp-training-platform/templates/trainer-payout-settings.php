@@ -1,7 +1,8 @@
 <?php
 /**
- * Trainer Payout Settings Template
- * Allows trainers to choose and configure their payout method
+ * Trainer Payout Settings Template - Stripe Connect Only
+ * Automatic instant payouts via Stripe Connect
+ * Version 26.0
  */
 
 defined('ABSPATH') || exit;
@@ -9,171 +10,131 @@ defined('ABSPATH') || exit;
 
 <div id="ptp-payout-settings" class="ptp-payout-settings">
     <div class="ptp-payout-header">
-        <h3>💰 How do you want to get paid?</h3>
-        <p class="ptp-subtitle">Choose how you'd like to receive your earnings after each session. You can change this anytime.</p>
+        <h3>Get Paid Instantly</h3>
+        <p class="ptp-subtitle">Connect your bank account to receive automatic payouts after each confirmed session.</p>
     </div>
 
     <!-- Current Status -->
     <div class="ptp-payout-status" id="payout-status">
-        <div class="ptp-status-loading">Loading...</div>
-    </div>
-
-    <!-- Payout Method Selection -->
-    <div class="ptp-payout-methods">
-        <div class="ptp-method-grid">
-            <!-- Venmo -->
-            <label class="ptp-method-card" data-method="venmo">
-                <input type="radio" name="payout_method" value="venmo">
-                <div class="ptp-method-content">
-                    <div class="ptp-method-icon">
-                        <svg viewBox="0 0 24 24" width="32" height="32"><path fill="#3D95CE" d="M19.5 3.5c.6 1.1.9 2.2.9 3.6 0 4.5-3.8 10.3-6.9 14.4H6.8L4 4.5l5.3-.5 1.5 11.9c1.4-2.3 3.1-5.8 3.1-8.2 0-1.3-.2-2.2-.5-2.9l5.1-1.3z"/></svg>
-                    </div>
-                    <div class="ptp-method-info">
-                        <span class="ptp-method-name">Venmo</span>
-                        <span class="ptp-method-desc">Same day payouts</span>
-                    </div>
-                    <div class="ptp-method-check">✓</div>
-                </div>
-            </label>
-
-            <!-- PayPal -->
-            <label class="ptp-method-card" data-method="paypal">
-                <input type="radio" name="payout_method" value="paypal">
-                <div class="ptp-method-content">
-                    <div class="ptp-method-icon">
-                        <svg viewBox="0 0 24 24" width="32" height="32"><path fill="#003087" d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944 2.65A.765.765 0 0 1 5.7 2h7.314c2.447 0 4.265.603 5.243 1.741.918 1.067 1.186 2.374.826 4.013-.02.1-.043.2-.067.3-.014.062-.028.124-.043.186-.014.06-.028.12-.044.178l-.023.092a8.023 8.023 0 0 1-.168.582c-.62 1.887-1.672 3.208-3.084 3.917-1.322.663-3.01.974-5.139.974h-.296a1.146 1.146 0 0 0-1.126.958l-.014.086-.517 3.27-.013.087a.573.573 0 0 1-.563.487z"/></svg>
-                    </div>
-                    <div class="ptp-method-info">
-                        <span class="ptp-method-name">PayPal</span>
-                        <span class="ptp-method-desc">Same day payouts</span>
-                    </div>
-                    <div class="ptp-method-check">✓</div>
-                </div>
-            </label>
-
-            <!-- Zelle -->
-            <label class="ptp-method-card" data-method="zelle">
-                <input type="radio" name="payout_method" value="zelle">
-                <div class="ptp-method-content">
-                    <div class="ptp-method-icon">
-                        <svg viewBox="0 0 24 24" width="32" height="32"><path fill="#6D1ED4" d="M13.559 24h-3.118c-.659 0-1.213-.476-1.325-1.122l-.728-4.156H4.08c-.653 0-1.159-.473-1.262-1.12l-.516-3.232a1.263 1.263 0 0 1 1.248-1.467h5.075l2.23-6.386H6.09a1.34 1.34 0 0 1-1.107-2.089l.515-.773A1.339 1.339 0 0 1 6.605 3h4.283l.742-1.87A1.34 1.34 0 0 1 12.877 0h2.99c.99 0 1.623 1.047 1.15 1.918L15.64 3h2.27c.99 0 1.623 1.047 1.15 1.918l-5.63 10.608h3.318c.99 0 1.624 1.047 1.15 1.918l-.514.968a1.34 1.34 0 0 1-1.182.706h-3.87l-.729 4.156c-.112.646-.666 1.122-1.325 1.122z"/></svg>
-                    </div>
-                    <div class="ptp-method-info">
-                        <span class="ptp-method-name">Zelle</span>
-                        <span class="ptp-method-desc">Direct to your bank</span>
-                    </div>
-                    <div class="ptp-method-check">✓</div>
-                </div>
-            </label>
-
-            <!-- Cash App -->
-            <label class="ptp-method-card" data-method="cashapp">
-                <input type="radio" name="payout_method" value="cashapp">
-                <div class="ptp-method-content">
-                    <div class="ptp-method-icon">
-                        <svg viewBox="0 0 24 24" width="32" height="32"><path fill="#00D632" d="M23.59 3.47A5.1 5.1 0 0 0 20.53.41C19.11.08 17.58-.04 16.05.01c-2.31.07-4.6.43-6.82 1.1-2.11.64-4.16 1.55-5.96 2.82A8.64 8.64 0 0 0 .86 6.72a6.11 6.11 0 0 0-.53 1.96c-.08.63-.08 1.27 0 1.9.15 1.12.52 2.2 1.08 3.17a9.72 9.72 0 0 0 2.4 2.87c.97.79 2.04 1.46 3.18 1.98.78.36 1.59.66 2.41.9l-.36 1.84c-.1.52.06 1.06.42 1.44.36.39.88.6 1.42.58h1.23c.54.02 1.07-.18 1.45-.57.37-.38.56-.91.5-1.45l-.34-1.74c.91-.16 1.8-.38 2.67-.67 1.35-.46 2.64-1.1 3.82-1.9a8.4 8.4 0 0 0 2.76-2.96c.6-1.01.96-2.14 1.05-3.3.09-1.15-.09-2.3-.53-3.36z"/><path fill="#FFF" d="M15.25 9.6c-.5-.64-1.18-1.08-1.94-1.3-.78-.22-1.6-.21-2.38.04-.51.16-.98.45-1.36.85-.38.4-.65.88-.8 1.41-.14.54-.14 1.1 0 1.64.14.53.4 1.01.77 1.42.47.52 1.07.9 1.74 1.1l.72.22c.23.07.43.19.58.35.15.17.24.37.25.59.02.21-.05.41-.18.58-.14.18-.33.31-.55.37-.42.12-.87.08-1.27-.11a2.09 2.09 0 0 1-.69-.54l-.09-.1-1.33 1.37.12.12c.34.38.75.68 1.2.88.47.21.97.32 1.48.34v1.12h1.17v-1.15c.61-.09 1.18-.33 1.66-.71a2.61 2.61 0 0 0 .98-1.52c.13-.6.09-1.23-.12-1.81a2.93 2.93 0 0 0-1.1-1.4 4.23 4.23 0 0 0-1.48-.71l-.72-.22a1.4 1.4 0 0 1-.57-.33.84.84 0 0 1-.22-.57c0-.19.07-.38.21-.54.13-.15.32-.27.53-.33.36-.11.74-.07 1.08.12.22.12.42.29.56.5l.08.11 1.26-1.41-.1-.1z"/></svg>
-                    </div>
-                    <div class="ptp-method-info">
-                        <span class="ptp-method-name">Cash App</span>
-                        <span class="ptp-method-desc">Same day payouts</span>
-                    </div>
-                    <div class="ptp-method-check">✓</div>
-                </div>
-            </label>
-
-            <!-- Direct Deposit -->
-            <label class="ptp-method-card" data-method="direct_deposit">
-                <input type="radio" name="payout_method" value="direct_deposit">
-                <div class="ptp-method-content">
-                    <div class="ptp-method-icon">
-                        <svg viewBox="0 0 24 24" width="32" height="32"><path fill="#4A5568" d="M12 2L2 7v2h20V7L12 2zm0 2.5L17.5 7h-11L12 4.5zM4 11v9h3v-6h2v6h3v-7h2v7h3v-6h2v6h3v-9H4zm-2 11h20v2H2v-2z"/></svg>
-                    </div>
-                    <div class="ptp-method-info">
-                        <span class="ptp-method-name">Direct Deposit</span>
-                        <span class="ptp-method-desc">2-3 business days</span>
-                    </div>
-                    <div class="ptp-method-check">✓</div>
-                </div>
-            </label>
+        <div class="ptp-status-loading">
+            <div class="ptp-spinner"></div>
+            <span>Loading payment status...</span>
         </div>
     </div>
 
-    <!-- Method Details Form -->
-    <div class="ptp-method-details" id="method-details" style="display: none;">
-        <!-- Venmo Form -->
-        <div class="ptp-method-form" data-for="venmo" style="display: none;">
-            <div class="ptp-form-group">
-                <label>Venmo Username or Phone</label>
-                <div class="ptp-input-with-prefix">
-                    <span class="ptp-prefix">@</span>
-                    <input type="text" name="venmo" placeholder="yourname or 215-555-0123" class="ptp-input">
+    <!-- Stripe Connect Section -->
+    <div class="ptp-stripe-section" id="stripe-section" style="display: none;">
+        <!-- Not Connected State -->
+        <div class="ptp-stripe-not-connected" id="stripe-not-connected" style="display: none;">
+            <div class="ptp-stripe-card">
+                <div class="ptp-stripe-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#635BFF" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
                 </div>
-                <p class="ptp-help">Enter your Venmo username (without @) or the phone number linked to your Venmo</p>
+                <h4>Connect Your Bank Account</h4>
+                <p>Set up Stripe Connect to receive automatic payouts. It only takes 2 minutes.</p>
+
+                <ul class="ptp-stripe-benefits">
+                    <li><span class="check">✓</span> Instant payouts after session confirmation</li>
+                    <li><span class="check">✓</span> Direct deposit to your bank account</li>
+                    <li><span class="check">✓</span> Automatic 1099 tax documentation</li>
+                    <li><span class="check">✓</span> View earnings dashboard anytime</li>
+                </ul>
+
+                <button type="button" id="start-stripe-onboarding" class="ptp-btn ptp-btn-stripe">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                    Set Up Payouts
+                </button>
+
+                <p class="ptp-stripe-secure">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    Secured by Stripe - Trusted by millions of businesses
+                </p>
             </div>
         </div>
 
-        <!-- PayPal Form -->
-        <div class="ptp-method-form" data-for="paypal" style="display: none;">
-            <div class="ptp-form-group">
-                <label>PayPal Email</label>
-                <input type="email" name="paypal" placeholder="email@example.com" class="ptp-input">
-                <p class="ptp-help">The email address linked to your PayPal account</p>
+        <!-- Connected State -->
+        <div class="ptp-stripe-connected" id="stripe-connected" style="display: none;">
+            <div class="ptp-earnings-cards">
+                <div class="ptp-earnings-card">
+                    <span class="ptp-earnings-label">Total Earned</span>
+                    <span class="ptp-earnings-value" id="total-earnings">$0.00</span>
+                </div>
+                <div class="ptp-earnings-card pending">
+                    <span class="ptp-earnings-label">Pending Payout</span>
+                    <span class="ptp-earnings-value" id="pending-balance">$0.00</span>
+                </div>
+            </div>
+
+            <div class="ptp-stripe-status-card">
+                <div class="ptp-stripe-status-header">
+                    <div class="ptp-stripe-status-icon success">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                    </div>
+                    <div class="ptp-stripe-status-text">
+                        <h4>Stripe Connected</h4>
+                        <p>Automatic payouts enabled</p>
+                    </div>
+                </div>
+
+                <div class="ptp-stripe-actions">
+                    <button type="button" id="view-stripe-dashboard" class="ptp-btn ptp-btn-secondary">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                        View Stripe Dashboard
+                    </button>
+                </div>
+            </div>
+
+            <!-- Recent Payouts -->
+            <div class="ptp-recent-payouts" id="recent-payouts">
+                <h4>Recent Payouts</h4>
+                <div class="ptp-payouts-list" id="payouts-list">
+                    <p class="ptp-no-payouts">No payouts yet. Complete sessions to start earning!</p>
+                </div>
             </div>
         </div>
 
-        <!-- Zelle Form -->
-        <div class="ptp-method-form" data-for="zelle" style="display: none;">
-            <div class="ptp-form-group">
-                <label>Zelle Email or Phone</label>
-                <input type="text" name="zelle" placeholder="email@example.com or 215-555-0123" class="ptp-input">
-                <p class="ptp-help">The email or phone number registered with Zelle through your bank</p>
+        <!-- Pending State (Onboarding incomplete) -->
+        <div class="ptp-stripe-pending" id="stripe-pending" style="display: none;">
+            <div class="ptp-stripe-card warning">
+                <div class="ptp-stripe-icon warning">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#F59E0B" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                </div>
+                <h4>Complete Your Setup</h4>
+                <p>Your Stripe account needs additional information before you can receive payouts.</p>
+
+                <button type="button" id="continue-stripe-onboarding" class="ptp-btn ptp-btn-stripe">
+                    Complete Setup
+                </button>
             </div>
         </div>
+    </div>
 
-        <!-- Cash App Form -->
-        <div class="ptp-method-form" data-for="cashapp" style="display: none;">
-            <div class="ptp-form-group">
-                <label>Cash App $Cashtag</label>
-                <div class="ptp-input-with-prefix">
-                    <span class="ptp-prefix">$</span>
-                    <input type="text" name="cashapp" placeholder="yourcashtag" class="ptp-input">
+    <!-- How It Works -->
+    <div class="ptp-how-it-works">
+        <h4>How Payouts Work</h4>
+        <div class="ptp-steps">
+            <div class="ptp-step">
+                <div class="ptp-step-num">1</div>
+                <div class="ptp-step-text">
+                    <strong>Complete a Session</strong>
+                    <span>Train your client as scheduled</span>
                 </div>
-                <p class="ptp-help">Your Cash App $cashtag (without the $)</p>
+            </div>
+            <div class="ptp-step">
+                <div class="ptp-step-num">2</div>
+                <div class="ptp-step-text">
+                    <strong>Session Confirmed</strong>
+                    <span>Client confirms the session happened</span>
+                </div>
+            </div>
+            <div class="ptp-step">
+                <div class="ptp-step-num">3</div>
+                <div class="ptp-step-text">
+                    <strong>Get Paid</strong>
+                    <span>80% transferred to your bank instantly</span>
+                </div>
             </div>
         </div>
-
-        <!-- Direct Deposit Form -->
-        <div class="ptp-method-form" data-for="direct_deposit" style="display: none;">
-            <div class="ptp-form-group">
-                <label>Bank Name</label>
-                <input type="text" name="bank_name" placeholder="Chase, Bank of America, etc." class="ptp-input">
-            </div>
-            <div class="ptp-form-row">
-                <div class="ptp-form-group">
-                    <label>Routing Number</label>
-                    <input type="text" name="routing" placeholder="9 digits" maxlength="9" pattern="[0-9]{9}" class="ptp-input">
-                </div>
-                <div class="ptp-form-group">
-                    <label>Account Number</label>
-                    <input type="text" name="account" placeholder="Your account number" class="ptp-input">
-                </div>
-            </div>
-            <div class="ptp-form-group">
-                <label>Account Type</label>
-                <div class="ptp-radio-group">
-                    <label><input type="radio" name="account_type" value="checking" checked> Checking</label>
-                    <label><input type="radio" name="account_type" value="savings"> Savings</label>
-                </div>
-            </div>
-            <p class="ptp-help ptp-secure-notice">
-                🔒 Your bank information is encrypted and stored securely. Only used for payouts.
-            </p>
-        </div>
-
-        <!-- Save Button -->
-        <button type="button" id="save-payout-method" class="ptp-btn ptp-btn-primary">
-            Save Payment Method
-        </button>
     </div>
 </div>
 
@@ -181,227 +142,98 @@ defined('ABSPATH') || exit;
 .ptp-payout-settings {
     max-width: 600px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 24px;
 }
 
 .ptp-payout-header h3 {
     margin: 0 0 8px 0;
-    font-size: 1.5rem;
+    font-size: 24px;
     font-weight: 700;
+    color: #111;
 }
 
 .ptp-subtitle {
-    color: #666;
+    color: #6B7280;
     margin: 0 0 24px 0;
+    font-size: 15px;
 }
 
 .ptp-payout-status {
-    background: #f8f9fa;
+    background: #F9FAFB;
     border-radius: 12px;
-    padding: 16px;
+    padding: 20px;
     margin-bottom: 24px;
 }
 
-.ptp-payout-status.configured {
-    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-    border: 1px solid #28a745;
-}
-
-.ptp-payout-status.not-configured {
-    background: linear-gradient(135deg, #fff3cd 0%, #ffeeba 100%);
-    border: 1px solid #ffc107;
-}
-
-.ptp-status-content {
+.ptp-status-loading {
     display: flex;
     align-items: center;
     gap: 12px;
+    color: #6B7280;
 }
 
-.ptp-status-icon {
-    font-size: 24px;
-}
-
-.ptp-status-text {
-    flex: 1;
-}
-
-.ptp-status-title {
-    font-weight: 600;
-    margin: 0 0 4px 0;
-}
-
-.ptp-status-detail {
-    color: #666;
-    margin: 0;
-    font-size: 0.9rem;
-}
-
-.ptp-method-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 12px;
-    margin-bottom: 24px;
-}
-
-.ptp-method-card {
-    cursor: pointer;
-    position: relative;
-}
-
-.ptp-method-card input {
-    position: absolute;
-    opacity: 0;
-}
-
-.ptp-method-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-    padding: 20px 12px;
-    border: 2px solid #e2e8f0;
-    border-radius: 12px;
-    background: white;
-    transition: all 0.2s ease;
-}
-
-.ptp-method-card:hover .ptp-method-content {
-    border-color: #FCB900;
-    background: #fffdf5;
-}
-
-.ptp-method-card input:checked + .ptp-method-content {
-    border-color: #FCB900;
-    background: #FCB900;
-    color: #0E0F11;
-}
-
-.ptp-method-icon {
-    width: 48px;
-    height: 48px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.ptp-method-name {
-    font-weight: 600;
-    font-size: 0.95rem;
-}
-
-.ptp-method-desc {
-    font-size: 0.8rem;
-    color: #666;
-}
-
-.ptp-method-card input:checked + .ptp-method-content .ptp-method-desc {
-    color: #333;
-}
-
-.ptp-method-check {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 24px;
-    height: 24px;
-    background: #FCB900;
-    color: #0E0F11;
+.ptp-spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #E5E7EB;
+    border-top-color: #FCB900;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-weight: bold;
-    opacity: 0;
-    transform: scale(0.5);
-    transition: all 0.2s ease;
+    animation: spin 0.8s linear infinite;
 }
 
-.ptp-method-card input:checked ~ .ptp-method-check {
-    opacity: 1;
-    transform: scale(1);
+@keyframes spin {
+    to { transform: rotate(360deg); }
 }
 
-.ptp-method-details {
-    background: #f8f9fa;
-    border-radius: 12px;
-    padding: 24px;
+/* Stripe Card */
+.ptp-stripe-card {
+    background: #fff;
+    border: 2px solid #E5E7EB;
+    border-radius: 16px;
+    padding: 32px;
+    text-align: center;
 }
 
-.ptp-form-group {
+.ptp-stripe-card.warning {
+    border-color: #F59E0B;
+    background: #FFFBEB;
+}
+
+.ptp-stripe-icon {
     margin-bottom: 16px;
 }
 
-.ptp-form-group label {
-    display: block;
-    font-weight: 600;
-    margin-bottom: 6px;
-    font-size: 0.9rem;
+.ptp-stripe-card h4 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    font-weight: 700;
+    color: #111;
 }
 
-.ptp-input {
-    width: 100%;
-    padding: 12px 16px;
-    border: 2px solid #e2e8f0;
-    border-radius: 8px;
-    font-size: 1rem;
-    transition: border-color 0.2s;
+.ptp-stripe-card p {
+    color: #6B7280;
+    margin: 0 0 24px 0;
 }
 
-.ptp-input:focus {
-    outline: none;
-    border-color: #FCB900;
+.ptp-stripe-benefits {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 24px 0;
+    text-align: left;
 }
 
-.ptp-input-with-prefix {
-    display: flex;
-    align-items: stretch;
-}
-
-.ptp-input-with-prefix .ptp-prefix {
-    background: #e2e8f0;
-    padding: 12px 14px;
-    border: 2px solid #e2e8f0;
-    border-right: none;
-    border-radius: 8px 0 0 8px;
-    font-weight: 600;
-    color: #666;
-}
-
-.ptp-input-with-prefix .ptp-input {
-    border-radius: 0 8px 8px 0;
-}
-
-.ptp-form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 16px;
-}
-
-.ptp-radio-group {
-    display: flex;
-    gap: 24px;
-}
-
-.ptp-radio-group label {
+.ptp-stripe-benefits li {
     display: flex;
     align-items: center;
-    gap: 8px;
-    font-weight: normal;
-    cursor: pointer;
+    gap: 10px;
+    padding: 8px 0;
+    color: #374151;
+    font-size: 14px;
 }
 
-.ptp-help {
-    font-size: 0.85rem;
-    color: #666;
-    margin-top: 6px;
-}
-
-.ptp-secure-notice {
-    background: #e8f5e9;
-    padding: 12px;
-    border-radius: 8px;
-    color: #2e7d32;
+.ptp-stripe-benefits .check {
+    color: #10B981;
+    font-weight: 700;
 }
 
 .ptp-btn {
@@ -411,48 +243,262 @@ defined('ABSPATH') || exit;
     gap: 8px;
     padding: 14px 28px;
     border: none;
-    border-radius: 8px;
-    font-size: 1rem;
+    border-radius: 10px;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s ease;
 }
 
-.ptp-btn-primary {
-    background: #FCB900;
-    color: #0E0F11;
+.ptp-btn-stripe {
+    background: #635BFF;
+    color: #fff;
+    width: 100%;
 }
 
-.ptp-btn-primary:hover {
-    background: #e5a800;
+.ptp-btn-stripe:hover {
+    background: #4F46E5;
     transform: translateY(-1px);
+}
+
+.ptp-btn-secondary {
+    background: #F3F4F6;
+    color: #374151;
+}
+
+.ptp-btn-secondary:hover {
+    background: #E5E7EB;
 }
 
 .ptp-btn:disabled {
     opacity: 0.6;
     cursor: not-allowed;
+    transform: none;
 }
 
-@media (max-width: 480px) {
-    .ptp-method-grid {
-        grid-template-columns: 1fr 1fr;
+.ptp-stripe-secure {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 16px;
+    font-size: 13px;
+    color: #6B7280;
+}
+
+/* Earnings Cards */
+.ptp-earnings-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.ptp-earnings-card {
+    background: #fff;
+    border: 2px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 20px;
+    text-align: center;
+}
+
+.ptp-earnings-card.pending {
+    background: #FFFBEB;
+    border-color: #FCB900;
+}
+
+.ptp-earnings-label {
+    display: block;
+    font-size: 13px;
+    color: #6B7280;
+    margin-bottom: 4px;
+}
+
+.ptp-earnings-value {
+    font-size: 28px;
+    font-weight: 700;
+    color: #111;
+}
+
+/* Status Card */
+.ptp-stripe-status-card {
+    background: #D1FAE5;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.ptp-stripe-status-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.ptp-stripe-status-icon {
+    width: 44px;
+    height: 44px;
+    background: #10B981;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+
+.ptp-stripe-status-text h4 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #065F46;
+}
+
+.ptp-stripe-status-text p {
+    margin: 2px 0 0;
+    font-size: 14px;
+    color: #047857;
+}
+
+.ptp-stripe-actions {
+    display: flex;
+    gap: 12px;
+}
+
+/* Recent Payouts */
+.ptp-recent-payouts {
+    background: #fff;
+    border: 2px solid #E5E7EB;
+    border-radius: 12px;
+    padding: 20px;
+}
+
+.ptp-recent-payouts h4 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.ptp-no-payouts {
+    color: #6B7280;
+    font-size: 14px;
+    text-align: center;
+    padding: 20px 0;
+}
+
+.ptp-payout-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.ptp-payout-item:last-child {
+    border-bottom: none;
+}
+
+.ptp-payout-date {
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.ptp-payout-amount {
+    font-weight: 600;
+    color: #10B981;
+}
+
+/* How It Works */
+.ptp-how-it-works {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 2px solid #E5E7EB;
+}
+
+.ptp-how-it-works h4 {
+    margin: 0 0 20px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #111;
+}
+
+.ptp-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.ptp-step {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.ptp-step-num {
+    width: 32px;
+    height: 32px;
+    background: #FCB900;
+    color: #0E0F11;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.ptp-step-text strong {
+    display: block;
+    font-size: 14px;
+    color: #111;
+}
+
+.ptp-step-text span {
+    font-size: 13px;
+    color: #6B7280;
+}
+
+/* Mobile Responsive */
+@media (max-width: 600px) {
+    .ptp-payout-settings {
+        padding: 16px;
     }
-    
-    .ptp-form-row {
+
+    .ptp-payout-header h3 {
+        font-size: 20px;
+    }
+
+    .ptp-earnings-cards {
         grid-template-columns: 1fr;
+    }
+
+    .ptp-stripe-card {
+        padding: 24px 16px;
+    }
+
+    .ptp-earnings-value {
+        font-size: 24px;
+    }
+
+    .ptp-stripe-actions {
+        flex-direction: column;
+    }
+
+    .ptp-btn {
+        width: 100%;
     }
 }
 </style>
 
 <script>
 jQuery(document).ready(function($) {
-    const $settings = $('#ptp-payout-settings');
     const $status = $('#payout-status');
-    const $details = $('#method-details');
-    
-    let currentInfo = null;
-    
-    // Load current payout info
+    const $section = $('#stripe-section');
+    const $notConnected = $('#stripe-not-connected');
+    const $connected = $('#stripe-connected');
+    const $pending = $('#stripe-pending');
+
+    // Load payout info
     function loadPayoutInfo() {
         $.ajax({
             url: ptp_ajax.ajax_url,
@@ -463,140 +509,125 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    currentInfo = response.data;
-                    updateStatusDisplay(response.data);
-                    
-                    // Select current method
-                    if (response.data.method) {
-                        $('input[name="payout_method"][value="' + response.data.method + '"]').prop('checked', true).trigger('change');
-                    }
-                }
-            }
-        });
-    }
-    
-    // Update status display
-    function updateStatusDisplay(info) {
-        let html = '';
-        
-        if (info.is_configured) {
-            $status.addClass('configured').removeClass('not-configured');
-            html = `
-                <div class="ptp-status-content">
-                    <div class="ptp-status-icon">✅</div>
-                    <div class="ptp-status-text">
-                        <p class="ptp-status-title">Payouts enabled via ${info.method_name}</p>
-                        <p class="ptp-status-detail">${info.payout_destination} • ${info.processing_time}</p>
-                    </div>
-                </div>
-            `;
-        } else {
-            $status.addClass('not-configured').removeClass('configured');
-            html = `
-                <div class="ptp-status-content">
-                    <div class="ptp-status-icon">⚠️</div>
-                    <div class="ptp-status-text">
-                        <p class="ptp-status-title">Set up your payout method</p>
-                        <p class="ptp-status-detail">Choose how you want to receive earnings from your sessions</p>
-                    </div>
-                </div>
-            `;
-        }
-        
-        $status.html(html);
-    }
-    
-    // Handle method selection
-    $('input[name="payout_method"]').on('change', function() {
-        const method = $(this).val();
-        
-        // Show details section
-        $details.show();
-        
-        // Hide all forms
-        $('.ptp-method-form').hide();
-        
-        // Show selected form
-        $(`.ptp-method-form[data-for="${method}"]`).show();
-        
-        // Pre-fill if we have data
-        if (currentInfo && currentInfo.method === method && currentInfo.payout_destination) {
-            switch (method) {
-                case 'venmo':
-                    $('input[name="venmo"]').val(currentInfo.payout_destination.replace('@', ''));
-                    break;
-                case 'paypal':
-                    $('input[name="paypal"]').val(currentInfo.payout_destination);
-                    break;
-                case 'zelle':
-                    $('input[name="zelle"]').val(currentInfo.payout_destination);
-                    break;
-                case 'cashapp':
-                    $('input[name="cashapp"]').val(currentInfo.payout_destination.replace('$', ''));
-                    break;
-            }
-        }
-    });
-    
-    // Save payout method
-    $('#save-payout-method').on('click', function() {
-        const $btn = $(this);
-        const method = $('input[name="payout_method"]:checked').val();
-        
-        if (!method) {
-            alert('Please select a payout method');
-            return;
-        }
-        
-        const $form = $(`.ptp-method-form[data-for="${method}"]`);
-        const data = {
-            action: 'ptp_save_payout_method',
-            nonce: ptp_ajax.nonce,
-            method: method
-        };
-        
-        // Collect form data
-        $form.find('input, select, textarea').each(function() {
-            const name = $(this).attr('name');
-            if (name && name !== 'payout_method') {
-                if ($(this).attr('type') === 'radio') {
-                    if ($(this).is(':checked')) {
-                        data[name] = $(this).val();
-                    }
+                    updateUI(response.data);
                 } else {
-                    data[name] = $(this).val();
-                }
-            }
-        });
-        
-        $btn.prop('disabled', true).text('Saving...');
-        
-        $.ajax({
-            url: ptp_ajax.ajax_url,
-            type: 'POST',
-            data: data,
-            success: function(response) {
-                if (response.success) {
-                    currentInfo = response.data.info;
-                    updateStatusDisplay(currentInfo);
-                    
-                    // Show success
-                    $btn.text('✓ Saved!');
-                    setTimeout(() => {
-                        $btn.prop('disabled', false).text('Save Payment Method');
-                    }, 2000);
-                } else {
-                    alert(response.data.message || 'Failed to save');
-                    $btn.prop('disabled', false).text('Save Payment Method');
+                    showError(response.data.message);
                 }
             },
             error: function() {
-                alert('Error saving payout method');
-                $btn.prop('disabled', false).text('Save Payment Method');
+                showError('Failed to load payout information');
+            }
+        });
+    }
+
+    function updateUI(data) {
+        $status.hide();
+        $section.show();
+
+        // Hide all states
+        $notConnected.hide();
+        $connected.hide();
+        $pending.hide();
+
+        if (data.onboarding_complete) {
+            // Fully connected
+            $connected.show();
+            $('#total-earnings').text('$' + (data.total_earnings || 0).toFixed(2));
+            $('#pending-balance').text('$' + (data.pending_balance || 0).toFixed(2));
+
+            // Show recent payouts
+            if (data.recent_payouts && data.recent_payouts.length > 0) {
+                let html = '';
+                data.recent_payouts.forEach(function(payout) {
+                    const date = new Date(payout.processed_at || payout.created_at);
+                    html += `
+                        <div class="ptp-payout-item">
+                            <span class="ptp-payout-date">${date.toLocaleDateString()}</span>
+                            <span class="ptp-payout-amount">+$${parseFloat(payout.amount).toFixed(2)}</span>
+                        </div>
+                    `;
+                });
+                $('#payouts-list').html(html);
+            }
+        } else if (data.stripe_account_id) {
+            // Account exists but onboarding incomplete
+            $pending.show();
+        } else {
+            // Not connected
+            $notConnected.show();
+        }
+    }
+
+    function showError(message) {
+        $status.html(`
+            <div style="color: #DC2626; display: flex; align-items: center; gap: 8px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                ${message}
+            </div>
+        `);
+    }
+
+    // Start Stripe onboarding
+    $('#start-stripe-onboarding, #continue-stripe-onboarding').on('click', function() {
+        const $btn = $(this);
+        $btn.prop('disabled', true).html('<span class="ptp-spinner" style="width:16px;height:16px;border-width:2px;"></span> Connecting...');
+
+        $.ajax({
+            url: ptp_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'ptp_start_stripe_onboarding',
+                nonce: ptp_ajax.nonce
+            },
+            success: function(response) {
+                if (response.success && response.data.url) {
+                    window.location.href = response.data.url;
+                } else {
+                    alert(response.data.message || 'Failed to start Stripe setup');
+                    $btn.prop('disabled', false).text('Set Up Payouts');
+                }
+            },
+            error: function() {
+                alert('Failed to connect to Stripe. Please try again.');
+                $btn.prop('disabled', false).text('Set Up Payouts');
             }
         });
     });
-    
+
+    // View Stripe dashboard
+    $('#view-stripe-dashboard').on('click', function() {
+        const $btn = $(this);
+        $btn.prop('disabled', true);
+
+        $.ajax({
+            url: ptp_ajax.ajax_url,
+            type: 'POST',
+            data: {
+                action: 'ptp_get_stripe_dashboard_link',
+                nonce: ptp_ajax.nonce
+            },
+            success: function(response) {
+                if (response.success && response.data.url) {
+                    window.open(response.data.url, '_blank');
+                } else {
+                    alert(response.data.message || 'Failed to get dashboard link');
+                }
+                $btn.prop('disabled', false);
+            },
+            error: function() {
+                alert('Failed to load dashboard. Please try again.');
+                $btn.prop('disabled', false);
+            }
+        });
+    });
+
+    // Check for return from Stripe
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('stripe_connected') === '1') {
+        // Refresh to show updated status
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     // Initialize
     loadPayoutInfo();
 });
