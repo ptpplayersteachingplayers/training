@@ -558,21 +558,6 @@ body{overflow-x:hidden}
     <div class="apply-hero">
         <h1>Train Athletes.<br><span>Get Paid.</span></h1>
         <p>Join our network of elite trainers earning $50-100/hr on your own schedule. We handle the bookings, you focus on training.</p>
-
-        <div class="apply-stats">
-            <div class="apply-stat">
-                <span class="apply-stat-value">$75</span>
-                <span class="apply-stat-label">Avg Hourly Rate</span>
-            </div>
-            <div class="apply-stat">
-                <span class="apply-stat-value">500+</span>
-                <span class="apply-stat-label">Sessions Booked</span>
-            </div>
-            <div class="apply-stat">
-                <span class="apply-stat-value">4.9</span>
-                <span class="apply-stat-label">Avg Rating</span>
-            </div>
-        </div>
     </div>
 
     <!-- Form Section -->
